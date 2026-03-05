@@ -136,3 +136,16 @@ button.secondary {
     border-radius: 8px;
     font-size: 14px;
 }
+
+.quiz-feedback--correct {
+    padding: 12px;
+    background: #e8f5e9;
+    color: #2e7d32;
+    border-radius: 8px;
+    font-size: 14px;
+    margin-top: 8px;
+}
+
+#btnSkipQuestion {
+    margin-left: 8px;
+}

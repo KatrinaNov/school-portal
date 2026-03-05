@@ -1,113 +1,33 @@
-/* ===============================
-   QUIZ CORE
-================================= */
+/**
+ * Quiz — привязка движка к DOM: загрузка, старт, рендер, обработчики.
+ * Состояние сессии (current, correct, wrong, skipped, attempts) в замыкании.
+ */
 
-function normalizeAnswer(str) {
-    return String(str == null ? "" : str).trim().toLowerCase();
-}
+(function () {
+    var Engine = typeof QuizEngine !== "undefined" ? QuizEngine : (typeof require !== "undefined" ? require("./quizEngine.js") : {});
 
-function validateAnswer(question, userAnswer) {
-    if (!question) return false;
-    if (question.type === "choice") {
-        var correctIndex = question.c;
-        if (correctIndex == null || !Array.isArray(question.a)) return false;
-        return parseInt(userAnswer, 10) === correctIndex;
-    }
-    if (question.type === "input") {
-        var answers = question.answers || (question.answer != null ? [question.answer] : []);
-        var normalized = normalizeAnswer(userAnswer);
-        return answers.some(function (a) { return normalizeAnswer(a) === normalized; });
-    }
-    return false;
-}
-
-function loadQuiz(path, backAction) {
-    showLoader("Загрузка теста...");
-    Api.getQuiz(path)
-        .then(function (data) {
-            startQuiz(data, backAction);
-        })
-        .catch(function () {
-            app.innerHTML = "<div class=\"container\"><h1>Ошибка загрузки теста</h1><button id=\"btnBack\">Главная</button></div>";
-            document.getElementById("btnBack").addEventListener("click", renderHome);
-        });
-}
-
-function startQuiz(data, backAction) {
-    var questions = (data && data.questions) || [];
-    if (questions.length === 0) {
-        app.innerHTML = "<div class=\"container\"><h1>В этом тесте нет вопросов</h1><button id=\"btnBack\">Назад</button></div>";
-        document.getElementById("btnBack").addEventListener("click", function () {
-            if (typeof backAction === "function") backAction();
-            else renderHome();
-        });
-        return;
+    function getContainer() {
+        return document.getElementById("app");
     }
 
-    var current = 0;
-    var correct = 0;
-    var wrong = 0;
-    var locked = false;
-    var quizTitle = (data && data.title) || "Тест";
-
-    function renderQuestion() {
-        locked = false;
-        var q = questions[current];
-        if (!q) {
-            renderResult();
-            return;
-        }
-
-        var answersHtml = "";
-        if (q.type === "choice" && Array.isArray(q.a)) {
-            q.a.forEach(function (a, i) {
-                answersHtml += "<div class=\"card answer-card\" data-index=\"" + i + "\">" + escapeHtml(String(a)) + "</div>";
-            });
-        }
-        if (q.type === "input") {
-            answersHtml = "<input type=\"text\" id=\"userAnswer\" class=\"input-answer\" placeholder=\"Введите ответ\"><button class=\"primary\" id=\"submitInputAnswer\">Ответить</button>";
-        }
-
-        app.innerHTML = "<div class=\"container\"><h1>" + escapeHtml(quizTitle) + "</h1><div class=\"progress\">" + (current + 1) + " из " + questions.length + "</div><h2>" + escapeHtml((q.q != null) ? String(q.q) : "") + "</h2>" + answersHtml + "<div id=\"quizFeedback\" class=\"quiz-feedback\" aria-live=\"polite\"></div><button class=\"secondary\" id=\"exitQuizBtn\">Выйти из теста</button></div>";
-
-        document.getElementById("exitQuizBtn").addEventListener("click", function () {
-            if (typeof backAction === "function") backAction();
-            else renderHome();
-        });
-
-        if (q.type === "choice") {
-            app.querySelectorAll(".answer-card").forEach(function (card) {
-                card.addEventListener("click", function () {
-                    handleChoiceAnswer(parseInt(card.getAttribute("data-index"), 10));
-                });
-            });
-        }
-        if (q.type === "input") {
-            document.getElementById("submitInputAnswer").addEventListener("click", handleInputAnswer);
-        }
+    function renderEmptyQuiz(backAction) {
+        var container = getContainer();
+        if (!container) return;
+        container.innerHTML = "<div class=\"container\"><h1>В этом тесте нет вопросов</h1><button id=\"btnBack\">Назад</button></div>";
+        var btn = document.getElementById("btnBack");
+        if (btn) btn.addEventListener("click", function () { (typeof backAction === "function" ? backAction() : (typeof renderHome === "function" && renderHome())); });
     }
 
-    function handleChoiceAnswer(index) {
-        if (locked) return;
-        var q = questions[current];
-        var correctIndex = q && q.c;
-        var cards = app.querySelectorAll(".answer-card");
-        var isCorrect = validateAnswer(q, index);
-
-        if (isCorrect) {
-            locked = true;
-            cards[index].classList.add("correct");
-            correct++;
-            setTimeout(nextStep, 700);
-        } else {
-            wrong++;
-            cards[index].classList.add("wrong");
-            showWrongAnswerFeedback(q);
-        }
+    function renderError(message, backAction) {
+        var container = getContainer();
+        if (!container) return;
+        container.innerHTML = "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(message) : message) + "</h1><button id=\"btnBack\">Главная</button></div>";
+        var btn = document.getElementById("btnBack");
+        if (btn) btn.addEventListener("click", function () { typeof renderHome === "function" && renderHome(); });
     }
 
-    function showWrongAnswerFeedback(question) {
-        var el = document.getElementById("quizFeedback");
+    function showWrongAnswerFeedback(container, question) {
+        var el = container ? container.querySelector("#quizFeedback") : null;
         if (!el) return;
         var msg = "Ответ неверный.";
         var hint = (question && (question.hint || question.explanation)) ? String(question.hint || question.explanation) : "";
@@ -116,138 +36,293 @@ function startQuiz(data, backAction) {
         el.className = "quiz-feedback quiz-feedback--wrong";
     }
 
-    function handleInputAnswer() {
-        if (locked) return;
-        var input = document.getElementById("userAnswer");
-        if (!input) return;
-        var userValue = input.value;
-        var q = questions[current];
-        var isCorrect = validateAnswer(q, userValue);
-
-        if (isCorrect) {
-            locked = true;
-            correct++;
-            input.classList.remove("wrong");
-            input.classList.add("correct");
-            setTimeout(nextStep, 700);
-        } else {
-            wrong++;
-            input.classList.add("wrong");
-            showWrongAnswerFeedback(q);
-        }
+    function showCorrectAnswerBlock(container, correctText) {
+        var el = container ? container.querySelector("#quizCorrectAnswer") : null;
+        if (!el) return;
+        el.textContent = "Правильный ответ: " + (correctText || "");
+        el.className = "quiz-feedback quiz-feedback--correct";
+        el.hidden = false;
     }
 
-    function nextStep() {
-        current++;
-        if (current < questions.length) {
-            renderQuestion();
-        } else {
-            renderResult();
+    function buildQuestionHtml(quizTitle, current, total, question, options) {
+        options = options || {};
+        var feedbackId = "quizFeedback";
+        var correctId = "quizCorrectAnswer";
+        var answersHtml = "";
+        if (question.type === "choice" && Array.isArray(question.a)) {
+            question.a.forEach(function (a, i) {
+                answersHtml += "<div class=\"card answer-card\" data-index=\"" + i + "\">" + (typeof escapeHtml === "function" ? escapeHtml(String(a)) : String(a)) + "</div>";
+            });
         }
+        if (question.type === "input") {
+            var inputDisabled = options.inputDisabled ? " disabled" : "";
+            answersHtml += "<input type=\"text\" id=\"userAnswer\" class=\"input-answer\" placeholder=\"Введите ответ\"" + inputDisabled + "><button class=\"primary\" id=\"submitInputAnswer\"" + (options.inputDisabled ? " disabled" : "") + ">Ответить</button>";
+        }
+        var correctBlock = "<div id=\"" + correctId + "\" class=\"quiz-feedback quiz-feedback--correct\" hidden aria-live=\"polite\"></div>";
+        var skipBtn = options.showSkip ? "<button class=\"secondary\" id=\"btnSkipQuestion\">Пропустить вопрос</button>" : "";
+        return "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(quizTitle) : quizTitle) + "</h1><div class=\"progress\">" + (current + 1) + " из " + total + "</div><h2>" + (typeof escapeHtml === "function" ? escapeHtml((question.q != null) ? String(question.q) : "") : (question.q != null ? String(question.q) : "")) + "</h2>" + answersHtml + "<div id=\"" + feedbackId + "\" class=\"quiz-feedback\" aria-live=\"polite\"></div>" + correctBlock + skipBtn + "<button class=\"secondary\" id=\"exitQuizBtn\">Выйти из теста</button></div>";
     }
 
-    function renderResult() {
-        var total = questions.length;
-        var pct = total ? Math.round((correct / total) * 100) : 0;
-        app.innerHTML = "<div class=\"container\"><h1>Тест завершён</h1><p>Правильных: " + correct + "</p><p>Ошибок: " + wrong + "</p><p>Процент: " + pct + "%</p><button id=\"btnQuizResultBack\">Назад</button></div>";
-        document.getElementById("btnQuizResultBack").addEventListener("click", function () {
-            if (typeof backAction === "function") backAction();
-            else renderHome();
+    function attachChoiceHandlers(container, onChoice) {
+        if (!container || typeof onChoice !== "function") return;
+        container.querySelectorAll(".answer-card").forEach(function (card) {
+            card.addEventListener("click", function () {
+                var idx = card.getAttribute("data-index");
+                if (idx !== null) onChoice(parseInt(idx, 10));
+            });
         });
     }
 
-    renderQuestion();
-}
-
-/* ===============================
-   CUSTOM TEST
-================================= */
-
-function shuffleArray(array) {
-    var a = array.slice();
-    for (var i = a.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        var t = a[i];
-        a[i] = a[j];
-        a[j] = t;
-    }
-    return a;
-}
-
-function createCustomTest(subjectPath) {
-    var checked = document.querySelectorAll(".paragraph-checkbox:checked");
-    if (checked.length === 0) {
-        alert("Выберите хотя бы один параграф");
-        return;
+    function attachInputHandlers(container, onSubmit, onSkip) {
+        if (!container) return;
+        var submitBtn = container.querySelector("#submitInputAnswer");
+        if (submitBtn && typeof onSubmit === "function") submitBtn.addEventListener("click", function () { onSubmit(); });
+        var skipBtn = container.querySelector("#btnSkipQuestion");
+        if (skipBtn && typeof onSkip === "function") skipBtn.addEventListener("click", function () { onSkip(); });
     }
 
-    showLoader("Составление теста...");
-    Api.getParagraphs(subjectPath)
-        .then(function (paragraphs) {
+    function attachExitHandler(container, onExit) {
+        if (!container || typeof onExit !== "function") return;
+        var btn = container.querySelector("#exitQuizBtn");
+        if (btn) btn.addEventListener("click", onExit);
+    }
+
+    function startQuiz(data, backAction) {
+        var questions = (data && data.questions) || [];
+        if (questions.length === 0) {
+            renderEmptyQuiz(backAction);
+            return;
+        }
+
+        var engine = Engine;
+        var maxAttempts = (engine.MAX_ATTEMPTS != null) ? engine.MAX_ATTEMPTS : 3;
+        var current = 0;
+        var correct = 0;
+        var wrong = 0;
+        var skipped = 0;
+        var locked = false;
+        var attempts = 0;
+        var quizTitle = (data && data.title) || "Тест";
+        var container = getContainer();
+
+        function resetAttempts() {
+            attempts = 0;
+        }
+
+        function nextStep() {
+            resetAttempts();
+            current++;
+            if (current < questions.length) {
+                renderQuestion();
+            } else {
+                renderResult();
+            }
+        }
+
+        function renderQuestion() {
+            locked = false;
+            var q = questions[current];
+            if (!q) {
+                renderResult();
+                return;
+            }
+
+            var canSkip = engine.canShowSkip && engine.canShowSkip(attempts, maxAttempts);
+            var correctAnswerText = (q.type === "input" && engine.getCorrectAnswerForDisplay) ? engine.getCorrectAnswerForDisplay(q) : "";
+        var showSkip = q.type === "input" && canSkip;
+        var inputDisabled = showSkip;
+
+        if (!container) return;
+        container.innerHTML = buildQuestionHtml(quizTitle, current, questions.length, q, {
+            showSkip: showSkip,
+            inputDisabled: inputDisabled
+        });
+
+            attachExitHandler(container, function () {
+                if (typeof backAction === "function") backAction();
+                else if (typeof renderHome === "function") renderHome();
+            });
+
+            if (q.type === "choice") {
+                attachChoiceHandlers(container, function (index) {
+                    if (locked) return;
+                    var isCorrect = engine.validateAnswer && engine.validateAnswer(q, index);
+                    if (isCorrect) {
+                        locked = true;
+                        var cards = container.querySelectorAll(".answer-card");
+                        if (cards[index]) cards[index].classList.add("correct");
+                        correct++;
+                        setTimeout(nextStep, 700);
+                    } else {
+                        wrong++;
+                        var cards = container.querySelectorAll(".answer-card");
+                        if (cards[index]) cards[index].classList.add("wrong");
+                        showWrongAnswerFeedback(container, q);
+                    }
+                });
+            }
+
+            if (q.type === "input") {
+                var inputEl = container.querySelector("#userAnswer");
+                var submitBtn = container.querySelector("#submitInputAnswer");
+
+                if (showSkip) {
+                    showCorrectAnswerBlock(container, correctAnswerText);
+                    if (inputEl) inputEl.disabled = true;
+                    if (submitBtn) submitBtn.disabled = true;
+                    attachInputHandlers(container, null, function () {
+                        if (locked) return;
+                        locked = true;
+                        skipped++;
+                        nextStep();
+                    });
+                    return;
+                }
+
+                attachInputHandlers(container, function () {
+                    if (locked) return;
+                    if (!inputEl) return;
+                    var userValue = inputEl.value;
+                    var isCorrect = engine.validateAnswer && engine.validateAnswer(q, userValue);
+
+                    if (isCorrect) {
+                        locked = true;
+                        correct++;
+                        inputEl.classList.remove("wrong");
+                        inputEl.classList.add("correct");
+                        if (submitBtn) submitBtn.disabled = true;
+                        setTimeout(nextStep, 700);
+                    } else {
+                        wrong++;
+                        attempts++;
+                        inputEl.classList.add("wrong");
+                        showWrongAnswerFeedback(container, q);
+                        if (engine.canShowSkip && engine.canShowSkip(attempts, maxAttempts)) {
+                            showCorrectAnswerBlock(container, correctAnswerText);
+                            if (inputEl) inputEl.disabled = true;
+                            if (submitBtn) submitBtn.disabled = true;
+                            var skipBtn = container.querySelector("#btnSkipQuestion");
+                            if (!skipBtn) {
+                                var correctEl = container.querySelector("#quizCorrectAnswer");
+                                var btn = document.createElement("button");
+                                btn.className = "secondary";
+                                btn.id = "btnSkipQuestion";
+                                btn.textContent = "Пропустить вопрос";
+                                btn.addEventListener("click", function () {
+                                    if (locked) return;
+                                    locked = true;
+                                    skipped++;
+                                    nextStep();
+                                });
+                                var parent = correctEl ? correctEl.parentNode : container;
+                                if (parent) {
+                                    if (correctEl && correctEl.nextSibling) parent.insertBefore(btn, correctEl.nextSibling);
+                                    else parent.appendChild(btn);
+                                }
+                            }
+                        }
+                    }
+                }, null);
+            }
+        }
+
+        function renderResult() {
+            if (!container) return;
+            var total = questions.length;
+            var pct = total ? Math.round((correct / total) * 100) : 0;
+            container.innerHTML = "<div class=\"container\"><h1>Тест завершён</h1><p>Правильных: " + correct + "</p><p>Ошибок: " + wrong + "</p><p>Пропущено: " + skipped + "</p><p>Процент: " + pct + "%</p><button id=\"btnQuizResultBack\">Назад</button></div>";
+            var btn = container.querySelector("#btnQuizResultBack");
+            if (btn) btn.addEventListener("click", function () {
+                if (typeof backAction === "function") backAction();
+                else if (typeof renderHome === "function") renderHome();
+            });
+        }
+
+        renderQuestion();
+    }
+
+    function loadQuiz(path, backAction) {
+        if (typeof showLoader === "function") showLoader("Загрузка теста...");
+        if (typeof Api !== "undefined" && Api.getQuiz) {
+            Api.getQuiz(path)
+                .then(function (data) { startQuiz(data, backAction); })
+                .catch(function () { renderError("Ошибка загрузки теста", backAction); });
+        } else {
+            renderError("Ошибка загрузки теста", backAction);
+        }
+    }
+
+    function createCustomTest(subjectPath) {
+        var checked = document.querySelectorAll && document.querySelectorAll(".paragraph-checkbox:checked");
+        if (!checked || checked.length === 0) {
+            alert("Выберите хотя бы один параграф");
+            return;
+        }
+        if (typeof showLoader === "function") showLoader("Составление теста...");
+        if (typeof Api === "undefined" || !Api.getParagraphs) {
+            renderError("Ошибка загрузки");
+            return;
+        }
+        Api.getParagraphs(subjectPath).then(function (paragraphs) {
             var selectedIds = Array.from(checked).map(function (c) { return c.value; });
             var selectedParagraphs = paragraphs.filter(function (p) { return selectedIds.indexOf(String(p.id)) !== -1; });
             var quizPromises = [];
             selectedParagraphs.forEach(function (p) {
                 if (p.quizzes && p.quizzes.length) {
                     p.quizzes.forEach(function (q) {
-                        var path = subjectPath + (q.file || "");
-                        quizPromises.push(Api.getQuiz(path));
+                        quizPromises.push(Api.getQuiz(subjectPath + (q.file || "")));
                     });
                 }
             });
-
             if (quizPromises.length === 0) {
-                app.innerHTML = "<div class=\"container\"><p>Для выбранных параграфов нет тестов</p><button id=\"btnBack\">Назад</button></div>";
-                document.getElementById("btnBack").addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
+                getContainer().innerHTML = "<div class=\"container\"><p>Для выбранных параграфов нет тестов</p><button id=\"btnBack\">Назад</button></div>";
+                var b = document.getElementById("btnBack");
+                if (b) b.addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
                 return;
             }
-
-            Promise.all(quizPromises)
-                .then(function (quizzes) {
-                    var allQuestions = [];
-                    quizzes.forEach(function (q) {
-                        if (q.questions && q.questions.length) {
-                            allQuestions = allQuestions.concat(q.questions);
-                        }
-                    });
-                    if (allQuestions.length === 0) {
-                        app.innerHTML = "<div class=\"container\"><p>Для выбранных параграфов нет вопросов</p><button id=\"btnBack\">Назад</button></div>";
-                        document.getElementById("btnBack").addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
-                        return;
-                    }
-                    shuffleArray(allQuestions);
-                    var finalQuestions = allQuestions.length > 20 ? allQuestions.slice(0, 20) : allQuestions;
-                    startQuiz(
-                        { title: "Свой тест", questions: finalQuestions },
-                        function () { renderSubjectFromPath(subjectPath); }
-                    );
-                })
-                .catch(function () {
-                    app.innerHTML = "<div class=\"container\"><p>Ошибка загрузки тестов</p><button id=\"btnBack\">Назад</button></div>";
-                    document.getElementById("btnBack").addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
+            Promise.all(quizPromises).then(function (quizzes) {
+                var allQuestions = [];
+                quizzes.forEach(function (q) {
+                    if (q.questions && q.questions.length) allQuestions = allQuestions.concat(q.questions);
                 });
-        })
-        .catch(function () {
-            app.innerHTML = "<div class=\"container\"><p>Ошибка загрузки</p><button id=\"btnBack\">Назад</button></div>";
-            document.getElementById("btnBack").addEventListener("click", renderHome);
+                if (allQuestions.length === 0) {
+                    getContainer().innerHTML = "<div class=\"container\"><p>Для выбранных параграфов нет вопросов</p><button id=\"btnBack\">Назад</button></div>";
+                    var b = document.getElementById("btnBack");
+                    if (b) b.addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
+                    return;
+                }
+                var finalQuestions = Engine.takeRandomQuestions ? Engine.takeRandomQuestions(allQuestions, 20) : (Engine.shuffleArray ? Engine.shuffleArray(allQuestions).slice(0, 20) : allQuestions.slice(0, 20));
+                startQuiz({ title: "Свой тест", questions: finalQuestions }, function () { renderSubjectFromPath(subjectPath); });
+            }).catch(function () {
+                getContainer().innerHTML = "<div class=\"container\"><p>Ошибка загрузки тестов</p><button id=\"btnBack\">Назад</button></div>";
+                var b = document.getElementById("btnBack");
+                if (b) b.addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
+            });
+        }).catch(function () {
+            renderError("Ошибка загрузки");
         });
-}
+    }
 
-/* ===============================
-   HELPERS
-================================= */
-
-function renderSubjectFromPath(path) {
-    var classId, subjectId;
-    for (classId in CONFIG.classes) {
-        if (!CONFIG.classes.hasOwnProperty(classId)) continue;
-        for (subjectId in CONFIG.classes[classId].subjects) {
-            if (!CONFIG.classes[classId].subjects.hasOwnProperty(subjectId)) continue;
-            if (CONFIG.classes[classId].subjects[subjectId].path === path) {
-                renderSubject(classId, subjectId);
-                return;
+    function renderSubjectFromPath(path) {
+        var c = typeof CONFIG !== "undefined" && CONFIG && CONFIG.classes;
+        if (!c) { if (typeof renderHome === "function") renderHome(); return; }
+        for (var classId in c) {
+            if (!c.hasOwnProperty(classId)) continue;
+            var subj = c[classId].subjects;
+            if (!subj) continue;
+            for (var subjectId in subj) {
+                if (!subj.hasOwnProperty(subjectId)) continue;
+                if (subj[subjectId].path === path) {
+                    if (typeof renderSubject === "function") renderSubject(classId, subjectId);
+                    return;
+                }
             }
         }
+        if (typeof renderHome === "function") renderHome();
     }
-    renderHome();
-}
+
+    window.loadQuiz = loadQuiz;
+    window.startQuiz = startQuiz;
+    window.createCustomTest = createCustomTest;
+    window.renderSubjectFromPath = renderSubjectFromPath;
+})();

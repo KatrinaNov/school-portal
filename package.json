@@ -1,0 +1,13 @@
+{
+  "name": "school-portal",
+  "version": "1.0.0",
+  "description": "Учебная тестовая система",
+  "private": true,
+  "scripts": {
+    "test": "node node_modules/jest/bin/jest.js --config jest.config.cjs",
+    "test:coverage": "node node_modules/jest/bin/jest.js --config jest.config.cjs --coverage"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
