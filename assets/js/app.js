@@ -1,129 +1,117 @@
 const app = document.getElementById("app");
 const breadcrumbs = document.getElementById("breadcrumbs");
 
+function showLoader(message) {
+    message = message || "Загрузка...";
+    app.innerHTML = "<div class=\"container container--loader\"><div class=\"loader\"></div><p>" + escapeHtml(message) + "</p></div>";
+}
+
 function setBreadcrumbs(items) {
-    breadcrumbs.innerHTML = items.map((item, i) => {
-        if(item.action) {
-            return `<span onclick="${item.action}">${item.label}</span>`;
+    var parts = [];
+    items.forEach(function (item) {
+        if (item.action) {
+            var args = item.args ? JSON.stringify(item.args) : "[]";
+            parts.push("<span class=\"breadcrumb-link\" data-action=\"" + escapeHtml(item.action) + "\" data-args=\"" + escapeHtml(args) + "\">" + escapeHtml(item.label) + "</span>");
+        } else {
+            parts.push(escapeHtml(item.label));
         }
-        return item.label;
-    }).join(" / ");
+    });
+    breadcrumbs.innerHTML = parts.join(" / ");
+    breadcrumbs.querySelectorAll(".breadcrumb-link").forEach(function (span) {
+        span.addEventListener("click", function () {
+            var action = span.getAttribute("data-action");
+            var args = [];
+            try {
+                args = JSON.parse(span.getAttribute("data-args") || "[]");
+            } catch (e) {}
+            if (typeof window[action] === "function") window[action].apply(null, args);
+        });
+    });
 }
 
 function renderHome() {
-    setBreadcrumbs([{label:"Главная"}]);
-
-    app.innerHTML = `
-    <div class="container">
-        <h1>Выберите класс</h1>
-        ${Object.keys(CONFIG.classes).map(c =>
-            `<div class="card" onclick="renderClass('${c}')">
-                ${CONFIG.classes[c].name}
-            </div>`
-        ).join("")}
-    </div>`;
+    setBreadcrumbs([{ label: "Главная" }]);
+    var html = "<div class=\"container\"><h1>Выберите класс</h1>";
+    Object.keys(CONFIG.classes).forEach(function (c) {
+        html += "<div class=\"card\" data-class-id=\"" + escapeHtml(c) + "\">" + escapeHtml(CONFIG.classes[c].name) + "</div>";
+    });
+    html += "</div>";
+    app.innerHTML = html;
+    app.querySelectorAll(".card[data-class-id]").forEach(function (el) {
+        el.addEventListener("click", function () {
+            renderClass(el.getAttribute("data-class-id"));
+        });
+    });
 }
 
 function renderClass(classId) {
-    const subjects = CONFIG.classes[classId].subjects;
+    var subjects = CONFIG.classes[classId].subjects;
     setBreadcrumbs([
-        {label:"Главная", action:"renderHome()"},
-        {label: CONFIG.classes[classId].name}
-    ]);
-
-    app.innerHTML = `<div class="container">
-        <h1>${CONFIG.classes[classId].name}</h1>
-        ${Object.keys(subjects).map(s =>
-            `<div class="card" onclick="renderSubject('${classId}','${s}')">
-                ${subjects[s].name}
-            </div>`
-        ).join("")}
-        <button onclick="renderHome()">Назад</button>
-    </div>`;
+        { label: "Главная", action: "renderHome" },
+        { label: CONFIG.classes[classId].name }
+    ]); // renderClass не нужен в крошках на этой странице
+    var html = "<div class=\"container\"><h1>" + escapeHtml(CONFIG.classes[classId].name) + "</h1>";
+    Object.keys(subjects).forEach(function (s) {
+        html += "<div class=\"card\" data-class-id=\"" + escapeHtml(classId) + "\" data-subject-id=\"" + escapeHtml(s) + "\">" + escapeHtml(subjects[s].name) + "</div>";
+    });
+    html += "<button id=\"btnBackClass\">Назад</button></div>";
+    app.innerHTML = html;
+    app.querySelectorAll(".card[data-subject-id]").forEach(function (el) {
+        el.addEventListener("click", function () {
+            renderSubject(el.getAttribute("data-class-id"), el.getAttribute("data-subject-id"));
+        });
+    });
+    document.getElementById("btnBackClass").addEventListener("click", renderHome);
 }
 
 function renderSubject(classId, subjectId) {
-    const subject = CONFIG.classes[classId]?.subjects?.[subjectId];
-
+    var subject = CONFIG.classes[classId] && CONFIG.classes[classId].subjects && CONFIG.classes[classId].subjects[subjectId];
     if (!subject) {
-        app.innerHTML = `<div class="container"><p>Предмет не найден</p></div>`;
+        app.innerHTML = "<div class=\"container\"><p>Предмет не найден</p></div>";
         return;
     }
-
-    fetch(subject.path + "paragraphs.json")
-        .then(res => {
-            if (!res.ok) throw new Error("Ошибка загрузки данных");
-            return res.json();
-        })
-        .then(paragraphs => {
-
+    State.setCurrentSubject(classId, subjectId, subject.path);
+    showLoader("Загрузка тем...");
+    Api.getParagraphs(subject.path)
+        .then(function (paragraphs) {
             setBreadcrumbs([
-                {label:"Главная", action:"renderHome()"},
-                {label: CONFIG.classes[classId].name, action:`renderClass('${classId}')`},
-                {label: subject.name}
+                { label: "Главная", action: "renderHome" },
+                { label: CONFIG.classes[classId].name, action: "renderClass", args: [classId] },
+                { label: subject.name }
             ]);
-
-            const hasAnyQuiz = paragraphs.some(
-                p => p.quizzes && p.quizzes.length
-            );
-
-            const paragraphsHTML = paragraphs.map(p => {
-
-                const hasQuiz = p.quizzes && p.quizzes.length;
-
-                return `
-                    <div class="paragraph-item">
-                        <div class="card"
-                            onclick="openParagraph('${subject.path}','${p.id}')">
-                            ${p.title}
-                        </div>
-
-                        ${
-                            hasQuiz
-                            ? `
-                                <label class="checkbox-label">
-                                    <input type="checkbox"
-                                        value="${p.id}"
-                                        class="paragraph-checkbox">
-                                    Добавить в свой тест
-                                </label>
-                              `
-                            : `<small class="no-quiz">Тестов пока нет</small>`
-                        }
-                    </div>
-                `;
-            }).join("");
-
-            app.innerHTML = `
-                <div class="container">
-                    <h1>${subject.name}</h1>
-
-                    <h2>Темы</h2>
-
-                    ${paragraphsHTML}
-
-                    ${
-                        hasAnyQuiz
-                        ? `
-                            <button onclick="createCustomTest('${subject.path}')">
-                                Составить тест
-                            </button>
-                          `
-                        : ""
-                    }
-
-                    <button onclick="renderClass('${classId}')">
-                        Назад
-                    </button>
-                </div>
-            `;
+            var hasAnyQuiz = paragraphs.some(function (p) { return p.quizzes && p.quizzes.length; });
+            var paragraphsHTML = "";
+            paragraphs.forEach(function (p) {
+                var hasQuiz = p.quizzes && p.quizzes.length;
+                paragraphsHTML += "<div class=\"paragraph-item\"><div class=\"card\" data-paragraph-path=\"" + escapeHtml(subject.path) + "\" data-paragraph-id=\"" + escapeHtml(String(p.id)) + "\">" + escapeHtml(p.title || "") + "</div>";
+                if (hasQuiz) {
+                    paragraphsHTML += "<label class=\"checkbox-label\"><input type=\"checkbox\" value=\"" + escapeHtml(String(p.id)) + "\" class=\"paragraph-checkbox\">Добавить в свой тест</label>";
+                } else {
+                    paragraphsHTML += "<small class=\"no-quiz\">Тестов пока нет</small>";
+                }
+                paragraphsHTML += "</div>";
+            });
+            var html = "<div class=\"container\"><h1>" + escapeHtml(subject.name) + "</h1><h2>Темы</h2>" + paragraphsHTML;
+            if (hasAnyQuiz) {
+                html += "<button id=\"btnCustomTest\" data-path=\"" + escapeHtml(subject.path) + "\">Составить тест</button>";
+            }
+            html += "<button id=\"btnBackSubject\">Назад</button></div>";
+            app.innerHTML = html;
+            app.querySelectorAll(".card[data-paragraph-id]").forEach(function (el) {
+                el.addEventListener("click", function () {
+                    openParagraph(el.getAttribute("data-paragraph-path"), el.getAttribute("data-paragraph-id"));
+                });
+            });
+            if (hasAnyQuiz) {
+                document.getElementById("btnCustomTest").addEventListener("click", function () {
+                    createCustomTest(this.getAttribute("data-path"));
+                });
+            }
+            document.getElementById("btnBackSubject").addEventListener("click", function () { renderClass(classId); });
         })
-        .catch(err => {
-            app.innerHTML = `
-                <div class="container">
-                    <p>Ошибка загрузки тем.</p>
-                </div>
-            `;
+        .catch(function (err) {
+            app.innerHTML = "<div class=\"container\"><p>Ошибка загрузки тем.</p><button id=\"btnErrorBack\">Назад</button></div>";
+            document.getElementById("btnErrorBack").addEventListener("click", renderHome);
             console.error(err);
         });
 }
