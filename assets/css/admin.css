@@ -309,3 +309,55 @@
 .admin-subsection-item input {
     flex: 1;
 }
+
+/* Форма входа */
+.admin-login-wrap {
+    max-width: 380px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+}
+
+.admin-login-wrap h2 {
+    margin: 0 0 1.5rem;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.admin-login-form .admin-form-group {
+    margin-bottom: 1rem;
+}
+
+.admin-login-form .admin-btn {
+    width: 100%;
+    margin-top: 0.5rem;
+}
+
+.admin-login-error {
+    margin-top: 0.75rem;
+    padding: 0.5rem 0;
+    font-size: 14px;
+    color: #c0392b;
+}
+
+.admin-login-note {
+    margin: 0 0 1rem;
+    padding: 0.75rem;
+    background: #fff3cd;
+    border-radius: 6px;
+    font-size: 13px;
+    color: #856404;
+}
+
+.admin-login-note code {
+    font-size: 12px;
+    background: rgba(0,0,0,0.06);
+    padding: 0.1em 0.3em;
+    border-radius: 3px;
+}
+
+.admin-login-note a {
+    color: #533f03;
+}

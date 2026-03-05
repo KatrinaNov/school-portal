@@ -11,13 +11,13 @@
     <header class="admin-header">
         <div class="admin-header__logo">⚙ Админ-панель</div>
         <a href="index.html" class="admin-header__link">На сайт</a>
-        <nav class="admin-header__nav">
+        <nav id="admin-header-nav" class="admin-header__nav">
             <button type="button" class="admin-tab" data-panel="classes">Классы</button>
             <button type="button" class="admin-tab" data-panel="subjects">Предметы</button>
             <button type="button" class="admin-tab" data-panel="paragraphs">Параграфы</button>
             <button type="button" class="admin-tab" data-panel="quizzes">Тесты</button>
         </nav>
-        <div class="admin-header__actions">
+        <div id="admin-header-actions" class="admin-header__actions">
             <button type="button" id="adminExport" class="admin-btn admin-btn--secondary">Экспорт JSON</button>
             <button type="button" id="adminImport" class="admin-btn admin-btn--secondary">Импорт JSON</button>
             <input type="file" id="adminImportFile" accept=".json,application/json" hidden>

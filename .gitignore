@@ -21,3 +21,8 @@ npm-debug.log*
 # Env
 .env
 .env.local
+
+# Админ-панель — только для локального использования, в репозиторий не публикуем
+admin.html
+assets/css/admin.css
+assets/js/admin/
