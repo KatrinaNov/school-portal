@@ -1,0 +1,26 @@
+const CONFIG = {
+    classes: {
+        "2": {
+            name: "2 класс",
+            subjects: {
+                math: {
+                    name: "Математика",
+                    path: "data/2/math/"
+                }
+            }
+        },
+        "6": {
+            name: "6 класс",
+            subjects: {
+                history: {
+                    name: "История",
+                    path: "data/6/history/"
+                },
+                historybel: {
+                    name: "История Беларуси",
+                    path: "data/6/historybel/"
+                }
+            }
+        }
+    }
+};

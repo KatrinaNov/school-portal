@@ -1,0 +1,102 @@
+body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: #f4f6fb;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+header {
+    background: #1e3c72;
+    color: white;
+    padding: 15px 30px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+main {
+    flex: 1;
+    padding: 20px;
+}
+
+footer {
+    background: #111;
+    color: #aaa;
+    text-align: center;
+    padding: 15px;
+    font-size: 14px;
+}
+
+.container {
+    max-width: 900px;
+    margin: auto;
+    background: white;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.card {
+    padding: 15px;
+    margin: 10px 0;
+    background: linear-gradient(135deg,#2a5298,#1e3c72);
+    color: white;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.card:hover {
+    transform: translateY(-3px);
+}
+
+button {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 6px;
+    background: #2a5298;
+    color: white;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+button.secondary {
+    background: #999;
+}
+
+.correct { background: #27ae60 !important; }
+.wrong { background: #e74c3c !important; }
+
+.progress {
+    margin: 15px 0;
+    font-weight: bold;
+}
+
+#breadcrumbs {
+    max-width: 900px;
+    margin: 0 auto 15px auto;
+    font-size: 14px;
+    color: #666;
+}
+
+#breadcrumbs span {
+    cursor: pointer;
+    color: #2a5298;
+}
+.paragraph-item {
+    margin-bottom: 20px;
+}
+
+.checkbox-label {
+    display: block;
+    margin-top: 6px;
+    font-size: 14px;
+}
+
+.no-quiz {
+    display: block;
+    margin-top: 6px;
+    color: #888;
+    font-size: 13px;
+}
