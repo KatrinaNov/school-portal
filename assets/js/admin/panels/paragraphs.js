@@ -260,7 +260,14 @@
                 arr.push(validated);
             }
             data.paragraphs[path] = arr;
-            Store.replaceData(data);
+            if (!Store.replaceData(data)) {
+                UI.showError("Ошибка применения данных");
+                return;
+            }
+            if (!Store.save()) {
+                UI.showError("Ошибка сохранения в localStorage");
+                return;
+            }
             UI.showSuccess("Параграф сохранён");
             editorWrap.style.display = "none";
             editorWrap.innerHTML = "";
@@ -304,7 +311,11 @@
             var arr = (data.paragraphs[path] || []).slice();
             arr.splice(index, 1);
             data.paragraphs[path] = arr;
-            Store.replaceData(data);
+            if (!Store.replaceData(data)) return;
+            if (!Store.save()) {
+                UI.showError("Ошибка сохранения в localStorage");
+                return;
+            }
             UI.showSuccess("Параграф удалён");
             document.getElementById("admin-paragraph-editor").style.display = "none";
             document.getElementById("admin-paragraph-editor").innerHTML = "";

@@ -60,7 +60,10 @@
             return;
         }
         data.config.classes[id] = { name: name || id + " класс", subjects: {} };
-        Store.replaceData(data);
+        if (!Store.replaceData(data) || !Store.save()) {
+            UI.showError("Ошибка сохранения");
+            return;
+        }
         UI.showSuccess("Класс добавлен");
         idInput.value = "";
         nameInput.value = "";
@@ -79,7 +82,10 @@
             return;
         }
         data.config.classes[classId].name = newName;
-        Store.replaceData(data);
+        if (!Store.replaceData(data) || !Store.save()) {
+            UI.showError("Ошибка сохранения");
+            return;
+        }
         UI.showSuccess("Класс переименован");
         render(document.getElementById("admin-panel"));
     }
@@ -89,7 +95,10 @@
             if (!ok) return;
             var data = Store.getData();
             delete data.config.classes[classId];
-            Store.replaceData(data);
+            if (!Store.replaceData(data) || !Store.save()) {
+                UI.showError("Ошибка сохранения");
+                return;
+            }
             UI.showSuccess("Класс удалён");
             render(document.getElementById("admin-panel"));
         });

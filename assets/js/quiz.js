@@ -15,7 +15,7 @@
         if (!container) return;
         container.innerHTML = "<div class=\"container\"><h1>В этом тесте нет вопросов</h1><button id=\"btnBack\">Назад</button></div>";
         var btn = document.getElementById("btnBack");
-        if (btn) btn.addEventListener("click", function () { (typeof backAction === "function" ? backAction() : (typeof renderHome === "function" && renderHome())); });
+        if (btn) btn.addEventListener("click", function () { (typeof backAction === "function" ? backAction() : (typeof Router !== "undefined" && Router.navigate ? Router.navigate(Router.hashForHome()) : (typeof renderHome === "function" && renderHome()))); });
     }
 
     function renderError(message, backAction) {
@@ -23,7 +23,7 @@
         if (!container) return;
         container.innerHTML = "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(message) : message) + "</h1><button id=\"btnBack\">Главная</button></div>";
         var btn = document.getElementById("btnBack");
-        if (btn) btn.addEventListener("click", function () { typeof renderHome === "function" && renderHome(); });
+        if (btn) btn.addEventListener("click", function () { (typeof Router !== "undefined" && Router.navigate ? Router.navigate(Router.hashForHome()) : (typeof renderHome === "function" && renderHome())); });
     }
 
     function showWrongAnswerFeedback(container, question) {
@@ -304,6 +304,10 @@
     }
 
     function renderSubjectFromPath(path) {
+        if (typeof Router !== "undefined" && Router.navigate && Router.hashFromPath) {
+            Router.navigate(Router.hashFromPath(path));
+            return;
+        }
         var c = typeof CONFIG !== "undefined" && CONFIG && CONFIG.classes;
         if (!c) { if (typeof renderHome === "function") renderHome(); return; }
         for (var classId in c) {

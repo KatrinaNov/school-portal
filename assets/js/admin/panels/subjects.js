@@ -86,7 +86,10 @@
         subjects[id] = { name: name || id, path: path };
         if (!data.paragraphs[path]) data.paragraphs[path] = [];
         if (!data.quizzes) data.quizzes = {};
-        Store.replaceData(data);
+        if (!Store.replaceData(data) || !Store.save()) {
+            UI.showError("Ошибка сохранения");
+            return;
+        }
         UI.showSuccess("Предмет добавлен");
         document.getElementById("admin-subject-id").value = "";
         document.getElementById("admin-subject-name").value = "";
@@ -123,7 +126,10 @@
                 }
             }
         }
-        Store.replaceData(data);
+        if (!Store.replaceData(data) || !Store.save()) {
+            UI.showError("Ошибка сохранения");
+            return;
+        }
         UI.showSuccess("Предмет обновлён");
         render(document.getElementById("admin-panel"));
     }
@@ -140,7 +146,10 @@
             for (var key in data.quizzes) {
                 if (data.quizzes.hasOwnProperty(key) && key.indexOf(path) === 0) delete data.quizzes[key];
             }
-            Store.replaceData(data);
+            if (!Store.replaceData(data) || !Store.save()) {
+                UI.showError("Ошибка сохранения");
+                return;
+            }
             UI.showSuccess("Предмет удалён");
             render(document.getElementById("admin-panel"));
         });

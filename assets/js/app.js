@@ -1,6 +1,101 @@
 const app = document.getElementById("app");
 const breadcrumbs = document.getElementById("breadcrumbs");
 
+/** Маршрутизация по hash: #/ , #/class/:id , #/class/:id/:subject , #/class/:id/:subject/paragraph/:id , #/class/:id/:subject/quiz/:slug */
+var Router = (function () {
+    function getRoute() {
+        var h = location.hash;
+        if (!h && location.href.indexOf("#") !== -1) {
+            h = "#" + location.href.split("#")[1];
+        }
+        var raw = (h || "").replace(/^#/, "");
+        try { raw = decodeURIComponent(raw); } catch (e) {}
+        var parts = raw ? raw.split("/").filter(Boolean) : [];
+        if (parts[0] !== "class") {
+            return { page: "home" };
+        }
+        var classId = parts[1];
+        if (!classId) return { page: "home" };
+        if (!parts[2]) return { page: "class", classId: classId };
+        var subjectId = parts[2];
+        if (parts[3] === "paragraph" && parts[4]) return { page: "paragraph", classId: classId, subjectId: subjectId, paragraphId: parts[4] };
+        if (parts[3] === "quiz" && parts[4]) return { page: "quiz", classId: classId, subjectId: subjectId, quizSlug: parts[4] };
+        return { page: "subject", classId: classId, subjectId: subjectId };
+    }
+
+    function dispatch(route) {
+        if (route.page === "home") {
+            renderHome();
+            return;
+        }
+        if (route.page === "class" && route.classId) {
+            renderClass(route.classId);
+            return;
+        }
+        if (route.page === "subject" && route.classId && route.subjectId) {
+            renderSubject(route.classId, route.subjectId);
+            return;
+        }
+        if (route.page === "paragraph" && route.classId && route.subjectId && route.paragraphId) {
+            var path = typeof CONFIG !== "undefined" && CONFIG.classes[route.classId] && CONFIG.classes[route.classId].subjects[route.subjectId]
+                ? CONFIG.classes[route.classId].subjects[route.subjectId].path : null;
+            if (path && typeof openParagraph === "function") {
+                if (typeof State !== "undefined" && State.setCurrentSubject) State.setCurrentSubject(route.classId, route.subjectId, path);
+                openParagraph(path, route.paragraphId);
+            } else if (typeof renderHome === "function") renderHome();
+            return;
+        }
+        if (route.page === "quiz" && route.classId && route.subjectId && route.quizSlug) {
+            var subj = typeof CONFIG !== "undefined" && CONFIG.classes[route.classId] && CONFIG.classes[route.classId].subjects[route.subjectId];
+            var path = subj ? subj.path + route.quizSlug + ".json" : null;
+            if (path && typeof loadQuiz === "function") {
+                loadQuiz(path, function () { Router.navigate(Router.hashForSubject(route.classId, route.subjectId)); });
+            } else if (typeof renderHome === "function") renderHome();
+            return;
+        }
+        if (typeof renderHome === "function") renderHome();
+    }
+
+    function onHashChange() {
+        dispatch(getRoute());
+    }
+
+    return {
+        getRoute: getRoute,
+        navigate: function (hash) {
+            var h = (hash || "").indexOf("#") === 0 ? hash : "#" + (hash ? "/" + hash.replace(/^\//, "") : "");
+            if (location.hash !== h) location.hash = h;
+            else dispatch(getRoute());
+        },
+        hashForHome: function () { return "#/"; },
+        hashForClass: function (classId) { return "#/class/" + encodeURIComponent(classId); },
+        hashForSubject: function (classId, subjectId) { return "#/class/" + encodeURIComponent(classId) + "/" + encodeURIComponent(subjectId); },
+        hashForParagraph: function (classId, subjectId, paragraphId) { return "#/class/" + encodeURIComponent(classId) + "/" + encodeURIComponent(subjectId) + "/paragraph/" + encodeURIComponent(String(paragraphId)); },
+        hashForQuiz: function (classId, subjectId, quizSlug) { return "#/class/" + encodeURIComponent(classId) + "/" + encodeURIComponent(subjectId) + "/quiz/" + encodeURIComponent(quizSlug); },
+        hashFromPath: function (path) {
+            if (!path || typeof CONFIG === "undefined" || !CONFIG.classes) return "#/";
+            var p = path.replace(/\/$/, "");
+            var c = CONFIG.classes;
+            for (var classId in c) {
+                if (!c.hasOwnProperty(classId) || !c[classId].subjects) continue;
+                for (var subjectId in c[classId].subjects) {
+                    if (c[classId].subjects[subjectId].path.replace(/\/$/, "") === p) return this.hashForSubject(classId, subjectId);
+                }
+            }
+            return "#/";
+        },
+        init: function () {
+            window.addEventListener("hashchange", onHashChange);
+            // Первый разбор — после загрузки всех скриптов, чтобы hash уже был в URL
+            setTimeout(function () { onHashChange(); }, 0);
+        }
+    };
+})();
+
+function goHome() { Router.navigate(Router.hashForHome()); }
+function goClass(classId) { Router.navigate(Router.hashForClass(classId)); }
+function goSubject(classId, subjectId) { Router.navigate(Router.hashForSubject(classId, subjectId)); }
+
 function showLoader(message) {
     message = message || "Загрузка...";
     app.innerHTML = "<div class=\"container container--loader\"><div class=\"loader\"></div><p>" + escapeHtml(message) + "</p></div>";
@@ -39,7 +134,7 @@ function renderHome() {
     app.innerHTML = html;
     app.querySelectorAll(".card[data-class-id]").forEach(function (el) {
         el.addEventListener("click", function () {
-            renderClass(el.getAttribute("data-class-id"));
+            Router.navigate(Router.hashForClass(el.getAttribute("data-class-id")));
         });
     });
 }
@@ -47,9 +142,9 @@ function renderHome() {
 function renderClass(classId) {
     var subjects = CONFIG.classes[classId].subjects;
     setBreadcrumbs([
-        { label: "Главная", action: "renderHome" },
+        { label: "Главная", action: "goHome" },
         { label: CONFIG.classes[classId].name }
-    ]); // renderClass не нужен в крошках на этой странице
+    ]);
     var html = "<div class=\"container\"><h1>" + escapeHtml(CONFIG.classes[classId].name) + "</h1>";
     Object.keys(subjects).forEach(function (s) {
         html += "<div class=\"card\" data-class-id=\"" + escapeHtml(classId) + "\" data-subject-id=\"" + escapeHtml(s) + "\">" + escapeHtml(subjects[s].name) + "</div>";
@@ -58,10 +153,10 @@ function renderClass(classId) {
     app.innerHTML = html;
     app.querySelectorAll(".card[data-subject-id]").forEach(function (el) {
         el.addEventListener("click", function () {
-            renderSubject(el.getAttribute("data-class-id"), el.getAttribute("data-subject-id"));
+            Router.navigate(Router.hashForSubject(el.getAttribute("data-class-id"), el.getAttribute("data-subject-id")));
         });
     });
-    document.getElementById("btnBackClass").addEventListener("click", renderHome);
+    document.getElementById("btnBackClass").addEventListener("click", function () { Router.navigate(Router.hashForHome()); });
 }
 
 function renderSubject(classId, subjectId) {
@@ -75,8 +170,8 @@ function renderSubject(classId, subjectId) {
     Api.getParagraphs(subject.path)
         .then(function (paragraphs) {
             setBreadcrumbs([
-                { label: "Главная", action: "renderHome" },
-                { label: CONFIG.classes[classId].name, action: "renderClass", args: [classId] },
+                { label: "Главная", action: "goHome" },
+                { label: CONFIG.classes[classId].name, action: "goClass", args: [classId] },
                 { label: subject.name }
             ]);
             var hasAnyQuiz = paragraphs.some(function (p) { return p.quizzes && p.quizzes.length; });
@@ -99,7 +194,7 @@ function renderSubject(classId, subjectId) {
             app.innerHTML = html;
             app.querySelectorAll(".card[data-paragraph-id]").forEach(function (el) {
                 el.addEventListener("click", function () {
-                    openParagraph(el.getAttribute("data-paragraph-path"), el.getAttribute("data-paragraph-id"));
+                    Router.navigate(Router.hashForParagraph(classId, subjectId, el.getAttribute("data-paragraph-id")));
                 });
             });
             if (hasAnyQuiz) {
@@ -107,13 +202,13 @@ function renderSubject(classId, subjectId) {
                     createCustomTest(this.getAttribute("data-path"));
                 });
             }
-            document.getElementById("btnBackSubject").addEventListener("click", function () { renderClass(classId); });
+            document.getElementById("btnBackSubject").addEventListener("click", function () { Router.navigate(Router.hashForClass(classId)); });
         })
         .catch(function (err) {
             app.innerHTML = "<div class=\"container\"><p>Ошибка загрузки тем.</p><button id=\"btnErrorBack\">Назад</button></div>";
-            document.getElementById("btnErrorBack").addEventListener("click", renderHome);
+            document.getElementById("btnErrorBack").addEventListener("click", function () { Router.navigate(Router.hashForHome()); });
             console.error(err);
         });
 }
 
-renderHome();
+Router.init();

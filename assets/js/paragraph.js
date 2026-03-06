@@ -10,7 +10,7 @@ function openParagraph(path, id) {
             var p = data.find(function (item) { return String(item.id) === String(id); });
             if (!p) {
                 app.innerHTML = "<div class=\"container\"><h1>Параграф не найден</h1><button id=\"btnBack\">Главная</button></div>";
-                document.getElementById("btnBack").addEventListener("click", renderHome);
+                document.getElementById("btnBack").addEventListener("click", function () { if (typeof Router !== "undefined" && Router.navigate) Router.navigate(Router.hashForHome()); });
                 return;
             }
             var curr = State.getCurrentSubject();
@@ -22,7 +22,7 @@ function openParagraph(path, id) {
             if (p.sections && p.sections.length) {
                 sectionsHtml = "<h2>Основные разделы</h2>";
                 p.sections.forEach(function (s) {
-                    sectionsHtml += "<div class=\"section-block\"><h3>" + escapeHtml((s && s.title) || "") + "</h3><p>" + escapeHtml((s && s.content) || "") + "</p></div>";
+                    sectionsHtml += "<div class=\"section-block\"><h3>" + escapeHtml((s && s.title) || "") + "</h3><p>" + formatParagraphText((s && s.content) || "") + "</p></div>";
                 });
             }
 
@@ -58,8 +58,9 @@ function openParagraph(path, id) {
                 quizHtml = "<h2>Тесты по теме</h2>";
                 p.quizzes.forEach(function (q) {
                     var quizPath = path + (q && q.file || "");
+                    var quizSlug = (q && q.file) ? String(q.file).replace(/\.json$/i, "") : "";
                     var quizTitle = (q && q.title) || "Тест";
-                    quizHtml += "<div class=\"card quiz-card\" data-quiz-path=\"" + escapeHtml(quizPath) + "\" data-back-path=\"" + escapeHtml(path) + "\" data-back-id=\"" + escapeHtml(String(p.id)) + "\">" + escapeHtml(quizTitle) + "</div>";
+                    quizHtml += "<div class=\"card quiz-card\" data-class-id=\"" + escapeHtml(String(classId)) + "\" data-subject-id=\"" + escapeHtml(String(subjectId)) + "\" data-quiz-slug=\"" + escapeHtml(quizSlug) + "\">" + escapeHtml(quizTitle) + "</div>";
                 });
                 quizHtml += "";
             } else {
@@ -67,28 +68,31 @@ function openParagraph(path, id) {
             }
 
             setBreadcrumbs([
-                { label: "Главная", action: "renderHome" },
-                { label: (CONFIG.classes[classId] && CONFIG.classes[classId].name) || "", action: "renderClass", args: [classId] },
-                { label: subjectName, action: "renderSubject", args: [classId, subjectId] },
+                { label: "Главная", action: "goHome" },
+                { label: (CONFIG.classes[classId] && CONFIG.classes[classId].name) || "", action: "goClass", args: [classId] },
+                { label: subjectName, action: "goSubject", args: [classId, subjectId] },
                 { label: (p.title || "") }
             ]);
 
-            app.innerHTML = "<div class=\"container\"><h1>" + escapeHtml(p.title || "") + "</h1><h2>Кратко</h2><p>" + escapeHtml(p.summary || "") + "</p>" + sectionsHtml + datesHtml + termsHtml + peopleHtml + quizHtml + "<button class=\"secondary\" id=\"btnBackToSubject\">Назад к предмету</button></div>";
+            app.innerHTML = "<div class=\"container\"><h1>" + escapeHtml(p.title || "") + "</h1><h2>Кратко</h2><p>" + formatParagraphText(p.summary || "") + "</p>" + sectionsHtml + datesHtml + termsHtml + peopleHtml + quizHtml + "<button class=\"secondary\" id=\"btnBackToSubject\">Назад к предмету</button></div>";
 
             app.querySelectorAll(".quiz-card").forEach(function (el) {
                 el.addEventListener("click", function () {
-                    loadQuiz(el.getAttribute("data-quiz-path"), function () {
-                        openParagraph(el.getAttribute("data-back-path"), el.getAttribute("data-back-id"));
-                    });
+                    var cid = el.getAttribute("data-class-id");
+                    var sid = el.getAttribute("data-subject-id");
+                    var slug = el.getAttribute("data-quiz-slug");
+                    if (typeof Router !== "undefined" && Router.navigate && Router.hashForQuiz && cid && sid && slug) {
+                        Router.navigate(Router.hashForQuiz(cid, sid, slug));
+                    }
                 });
             });
             document.getElementById("btnBackToSubject").addEventListener("click", function () {
-                if (classId != null && subjectId != null) renderSubject(classId, subjectId);
-                else renderSubjectFromPath(path);
+                if (classId != null && subjectId != null && typeof Router !== "undefined" && Router.navigate) Router.navigate(Router.hashForSubject(classId, subjectId));
+                else if (typeof renderSubjectFromPath === "function") renderSubjectFromPath(path);
             });
         })
         .catch(function () {
             app.innerHTML = "<div class=\"container\"><h1>Ошибка загрузки параграфа</h1><button id=\"btnBack\">Главная</button></div>";
-            document.getElementById("btnBack").addEventListener("click", renderHome);
+            document.getElementById("btnBack").addEventListener("click", function () { if (typeof Router !== "undefined" && Router.navigate) Router.navigate(Router.hashForHome()); });
         });
 }

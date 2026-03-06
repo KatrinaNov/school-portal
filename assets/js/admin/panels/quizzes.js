@@ -108,7 +108,10 @@
         }
         data.quizzes[fullKey] = { title: title || "Тест", questions: [] };
         if (!data.quizzes) data.quizzes = {};
-        Store.replaceData(data);
+        if (!Store.replaceData(data) || !Store.save()) {
+            UI.showError("Ошибка сохранения");
+            return;
+        }
         UI.showSuccess("Тест добавлен");
         document.getElementById("admin-quiz-filename").value = "";
         document.getElementById("admin-quiz-title").value = "";
@@ -257,7 +260,10 @@
                 return;
             }
             data.quizzes[fullKey] = quizObj;
-            Store.replaceData(data);
+            if (!Store.replaceData(data) || !Store.save()) {
+                UI.showError("Ошибка сохранения");
+                return;
+            }
             UI.showSuccess("Тест сохранён");
             editorWrap.style.display = "none";
             render(document.getElementById("admin-panel"));
@@ -274,7 +280,10 @@
             if (!ok) return;
             var data = Store.getData();
             delete data.quizzes[fullKey];
-            Store.replaceData(data);
+            if (!Store.replaceData(data) || !Store.save()) {
+                UI.showError("Ошибка сохранения");
+                return;
+            }
             UI.showSuccess("Тест удалён");
             document.getElementById("admin-quiz-editor").style.display = "none";
             render(document.getElementById("admin-panel"));
