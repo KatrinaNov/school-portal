@@ -19,6 +19,10 @@ const CONFIG = {
                 historybel: {
                     name: "История Беларуси",
                     path: "data/6/historybel/"
+                },
+                english: {
+                    name: "Английский язык",
+                    path: "data/6/english/"
                 }
             }
         }

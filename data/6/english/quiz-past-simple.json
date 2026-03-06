@@ -1,0 +1,94 @@
+{
+  "title": "English: Past Simple",
+  "questions": [
+    {
+      "type": "choice",
+      "q": "Выберите формулу отрицания Past Simple (для обычных глаголов).",
+      "a": [
+        "Subject + didn't + V1",
+        "Subject + wasn't/weren't + V1",
+        "Subject + don't/doesn't + V1",
+        "Subject + did + V2"
+      ],
+      "c": 0
+    },
+    {
+      "type": "choice",
+      "q": "Выберите формулу общего вопроса в Past Simple.",
+      "a": [
+        "Did + subject + V1?",
+        "Do/Does + subject + V1?",
+        "Was/Were + subject + V-ing?",
+        "Have/Has + subject + V3?"
+      ],
+      "c": 0
+    },
+    {
+      "type": "choice",
+      "q": "Заполните: She didn't ____ to school yesterday.",
+      "a": ["went", "go", "goes", "going"],
+      "c": 1
+    },
+    {
+      "type": "input",
+      "q": "Напишите 2-ю форму (V2) глагола go.",
+      "answer": "went"
+    },
+    {
+      "type": "choice",
+      "q": "Вопрос к подлежащему в Past Simple (кто сделал действие) строится без did. Выберите верный вариант.",
+      "a": [
+        "Who did break the window?",
+        "Who broke the window?",
+        "Who break the window?",
+        "Who was break the window?"
+      ],
+      "c": 1
+    },
+    {
+      "type": "choice",
+      "q": "Выберите правильное утверждение: I ____ TV yesterday.",
+      "a": ["watched", "watching", "watch", "watches"],
+      "c": 0
+    },
+    {
+      "type": "choice",
+      "q": "Как читается окончание -ed после звуков /t/ или /d/?",
+      "a": ["/t/", "/d/", "/ɪd/", "/eɪd/"],
+      "c": 2
+    },
+    {
+      "type": "input",
+      "q": "Напишите сокращение did not.",
+      "answers": ["didn't", "didnt"]
+    },
+    {
+      "type": "choice",
+      "q": "Глагол be в Past Simple: I ____ at home.",
+      "a": ["was", "were", "did", "been"],
+      "c": 0
+    },
+    {
+      "type": "choice",
+      "q": "Короткий ответ: Did you see him? — Yes, I ____.",
+      "a": ["did", "do", "was", "were"],
+      "c": 0
+    },
+    {
+      "type": "choice",
+      "q": "Когда обычно используем Past Simple?",
+      "a": [
+        "Завершённое действие в прошлом",
+        "Действие, происходящее прямо сейчас",
+        "Действие, которое будет завтра",
+        "Действие, которое началось в прошлом и продолжается до сих пор"
+      ],
+      "c": 0
+    },
+    {
+      "type": "input",
+      "q": "Сделайте отрицание: \"He played\".",
+      "answers": ["he didn't play", "he did not play"]
+    }
+  ]
+}

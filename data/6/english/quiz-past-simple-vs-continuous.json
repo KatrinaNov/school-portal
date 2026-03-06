@@ -1,0 +1,73 @@
+{
+  "title": "English: Past Simple vs Past Continuous",
+  "questions": [
+    {
+      "type": "choice",
+      "q": "Выберите время: She ____ (go) to school yesterday.",
+      "a": ["Past Simple", "Past Continuous"],
+      "c": 0
+    },
+    {
+      "type": "choice",
+      "q": "Выберите время: I ____ (watch) TV when he called.",
+      "a": ["Past Simple", "Past Continuous"],
+      "c": 1
+    },
+    {
+      "type": "choice",
+      "q": "Выберите время: While I was walking, it ____ (start) to rain.",
+      "a": ["Past Simple", "Past Continuous"],
+      "c": 0
+    },
+    {
+      "type": "choice",
+      "q": "Выберите время: At 7 pm yesterday we ____ (do) homework.",
+      "a": ["Past Simple", "Past Continuous"],
+      "c": 1
+    },
+    {
+      "type": "choice",
+      "q": "Какое предложение верное по смыслу (фон + событие)?",
+      "a": [
+        "When I arrived, she cooked dinner.",
+        "When I arrived, she was cooking dinner.",
+        "When I arrived, she did cooking dinner.",
+        "When I arrived, she was cook dinner."
+      ],
+      "c": 1
+    },
+    {
+      "type": "choice",
+      "q": "Выберите правильную форму: They ____ (play) while I ____ (study).",
+      "a": [
+        "played / studied",
+        "were playing / was studying",
+        "did play / did study",
+        "were played / was studied"
+      ],
+      "c": 1
+    },
+    {
+      "type": "input",
+      "q": "Заполните пропуск: I was watching TV when he ____ (call).",
+      "answers": ["called"]
+    },
+    {
+      "type": "input",
+      "q": "Заполните пропуск: Yesterday I ____ (visit) my grandma.",
+      "answers": ["visited"]
+    },
+    {
+      "type": "choice",
+      "q": "Выберите верный вариант: She didn't ____ when I called.",
+      "a": ["slept", "sleeping", "sleep", "was sleep"],
+      "c": 2
+    },
+    {
+      "type": "choice",
+      "q": "Выберите верный вариант: He ____ sleeping when I called.",
+      "a": ["didn't", "was", "did", "were"],
+      "c": 1
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "eng-past-simple",
+    "title": "Past Simple — прошедшее простое время",
+    "summary": "Past Simple используется для завершённых действий в прошлом (часто с указанием времени: yesterday, last week, in 2020). Важно: в вопросах и отрицаниях обычно используется did, поэтому основной глагол остаётся в базовой форме (V1).",
+    "sections": [
+      {
+        "title": "1) Утверждение (Affirmative)",
+        "content": "Формула: Subject + V2/(-ed).\n\nПравильные глаголы: V + -ed.\n- I played football yesterday. — Я играл в футбол вчера.\n- She visited her grandma last Sunday. — Она навестила бабушку в прошлое воскресенье.\n\nНеправильные глаголы: используется 2-я форма (V2): go → went, do → did, have → had.\n- We went to school. — Мы пошли в школу.\n\nГлагол be: I/he/she/it was, we/you/they were.\n- I was at home. — Я был дома.\n- They were happy. — Они были счастливы."
+      },
+      {
+        "title": "2) Отрицание (Negative)",
+        "content": "Формула: Subject + did not (didn't) + V1.\n\nКлючевой нюанс: после didn't всегда базовая форма (без -ed / без V2).\n- I didn't play. — Я не играл.\n- She didn't go to school. — Она не пошла в школу. (не: didn't went)\n\nС глаголом be did не используется:\n- I wasn't at home. — Я не был дома.\n- They weren't ready. — Они не были готовы."
+      },
+      {
+        "title": "3) Вопрос (Questions) и короткие ответы",
+        "content": "Общий вопрос: Did + subject + V1?\n- Did you play football? — Ты играл в футбол?\nКороткие ответы:\n- Yes, I did. — Да.\n- No, I didn't. — Нет.\n\nСпециальный вопрос: Wh-word + did + subject + V1?\n- Where did you go? — Куда ты ходил?\n\nВопрос к подлежащему (Who/What как подлежащее) — без did:\n- Who broke the window? — Кто разбил окно?\n(не: Who did break ...)"
+      },
+      {
+        "title": "4) Подсказки и произношение -ed",
+        "content": "Маркеры времени: yesterday, last week/month/year, ago, in 2019, on Monday.\n\nПроизношение -ed:\n- /t/ после глухих звуков (worked, asked)\n- /d/ после звонких (played, cleaned)\n- /ɪd/ после t/d (wanted, needed)"
+      }
+    ],
+    "terms": [
+      { "term": "V1", "definition": "Базовая форма глагола (play, go, do)" },
+      { "term": "V2", "definition": "2-я форма глагола (played, went, did)" },
+      { "term": "did", "definition": "Вспомогательный глагол Past Simple для вопросов и отрицаний" },
+      { "term": "subject question", "definition": "Вопрос к подлежащему (Who came? What happened?)" }
+    ],
+    "quizzes": [
+      { "title": "Тест: Past Simple", "file": "quiz-past-simple.json" },
+      { "title": "Тест: Past Simple vs Past Continuous", "file": "quiz-past-simple-vs-continuous.json" }
+    ]
+  },
+  {
+    "id": "eng-past-continuous",
+    "title": "Past Continuous — прошедшее длительное время",
+    "summary": "Past Continuous используется для действий, которые происходили в процессе в определённый момент в прошлом, а также для «фонового» действия, которое прерывается другим событием (обычно Past Simple).",
+    "sections": [
+      {
+        "title": "1) Утверждение (Affirmative)",
+        "content": "Формула: Subject + was/were + V-ing.\n- I was reading at 8 pm yesterday. — Я читал в 8 вечера вчера.\n- They were playing while I was cooking. — Они играли, пока я готовил.\n\nwas: I/he/she/it\nwere: we/you/they"
+      },
+      {
+        "title": "2) Отрицание (Negative)",
+        "content": "Формула: Subject + was/were + not + V-ing.\n- She wasn't sleeping. — Она не спала.\n- We weren't studying. — Мы не учились."
+      },
+      {
+        "title": "3) Вопрос (Questions)",
+        "content": "Общий вопрос: Was/Were + subject + V-ing?\n- Were you listening? — Ты слушал?\n\nСпециальный вопрос: Wh-word + was/were + subject + V-ing?\n- What were you doing at 7? — Что ты делал в 7 часов?"
+      },
+      {
+        "title": "4) Как образовать -ing форму (нюансы)",
+        "content": "Обычно: play → playing.\n\nПравила:\n- silent e → убираем: make → making, write → writing\n- -ie → меняем на -y: die → dying, lie → lying\n- CVC (run, swim) → удваиваем согласную: run → running, swim → swimming\n- 2 слога, ударение на последний → тоже может удваиваться: prefer → preferring"
+      },
+      {
+        "title": "5) Past Continuous vs Past Simple (when/while)",
+        "content": "Частый шаблон: Past Continuous (фон) + when + Past Simple (событие).\n- I was watching TV when he called. — Я смотрел телевизор, когда он позвонил.\n\nwhile обычно подчёркивает длительность фонового действия:\n- While I was walking, it started to rain. — Пока я шёл, начался дождь.\n\nЕсли два действия шли параллельно, часто оба в Past Continuous:\n- I was doing homework while my brother was playing. — Я делал домашку, пока брат играл."
+      }
+    ],
+    "terms": [
+      { "term": "was/were", "definition": "Прошедшие формы be для Past Continuous" },
+      { "term": "V-ing", "definition": "Форма глагола с -ing (reading, playing)" },
+      { "term": "while", "definition": "«пока», подчёркивает длительность/параллельность" },
+      { "term": "when", "definition": "«когда», часто вводит событие, которое прерывает фон" }
+    ],
+    "quizzes": [
+      { "title": "Тест: Past Continuous", "file": "quiz-past-continuous.json" },
+      { "title": "Тест: Past Simple vs Past Continuous", "file": "quiz-past-simple-vs-continuous.json" }
+    ]
+  }
+]
