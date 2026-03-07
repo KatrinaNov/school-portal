@@ -33,8 +33,14 @@ var Api = (function () {
         });
     }
 
+    /** Сброс кэша (для разработки: после изменения JSON обновить данные без перезагрузки вкладки). */
+    function clearCache() {
+        cache = {};
+    }
+
     return {
         getParagraphs: getParagraphs,
-        getQuiz: getQuiz
+        getQuiz: getQuiz,
+        clearCache: clearCache
     };
 })();
