@@ -252,25 +252,48 @@
         }
     }
 
-    function createCustomTest(subjectPath) {
+    function createCustomTest(subjectPath, sourceType) {
         var checked = document.querySelectorAll && document.querySelectorAll(".paragraph-checkbox:checked");
         if (!checked || checked.length === 0) {
             alert("Выберите хотя бы один параграф");
             return;
         }
+        var selectedIds = Array.from(checked).map(function (c) { return c.value; });
+        var type = (sourceType != null && sourceType !== "") ? sourceType : (typeof QuizGenerators !== "undefined" && QuizGenerators.SOURCE_PARAGRAPHS ? QuizGenerators.SOURCE_PARAGRAPHS : "paragraphs");
+
         if (typeof showLoader === "function") showLoader("Составление теста...");
+
+        if (typeof QuizGenerators !== "undefined" && typeof QuizGenerators.run === "function") {
+            QuizGenerators.run(type, subjectPath, selectedIds, { limit: 20 })
+                .then(function (result) {
+                    if (!result || !result.questions || result.questions.length === 0) {
+                        getContainer().innerHTML = "<div class=\"container\"><p>Для выбранных параграфов и типа теста нет вопросов</p><button id=\"btnBack\">Назад</button></div>";
+                        var b = document.getElementById("btnBack");
+                        if (b) b.addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
+                        return;
+                    }
+                    startQuiz({ title: result.title || "Свой тест", questions: result.questions }, function () { renderSubjectFromPath(subjectPath); });
+                })
+                .catch(function () {
+                    getContainer().innerHTML = "<div class=\"container\"><p>Ошибка загрузки теста</p><button id=\"btnBack\">Назад</button></div>";
+                    var b = document.getElementById("btnBack");
+                    if (b) b.addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
+                });
+            return;
+        }
+
         if (typeof Api === "undefined" || !Api.getParagraphs) {
             renderError("Ошибка загрузки");
             return;
         }
         Api.getParagraphs(subjectPath).then(function (paragraphs) {
-            var selectedIds = Array.from(checked).map(function (c) { return c.value; });
             var selectedParagraphs = paragraphs.filter(function (p) { return selectedIds.indexOf(String(p.id)) !== -1; });
             var quizPromises = [];
             selectedParagraphs.forEach(function (p) {
                 if (p.quizzes && p.quizzes.length) {
                     p.quizzes.forEach(function (q) {
-                        quizPromises.push(Api.getQuiz(subjectPath + (q.file || "")));
+                        var file = (q && q.file) || (q && q.id ? q.id + ".json" : "");
+                        if (file) quizPromises.push(Api.getQuiz(subjectPath + file));
                     });
                 }
             });
@@ -283,7 +306,7 @@
             Promise.all(quizPromises).then(function (quizzes) {
                 var allQuestions = [];
                 quizzes.forEach(function (q) {
-                    if (q.questions && q.questions.length) allQuestions = allQuestions.concat(q.questions);
+                    if (q && q.questions && q.questions.length) allQuestions = allQuestions.concat(q.questions);
                 });
                 if (allQuestions.length === 0) {
                     getContainer().innerHTML = "<div class=\"container\"><p>Для выбранных параграфов нет вопросов</p><button id=\"btnBack\">Назад</button></div>";

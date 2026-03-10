@@ -149,3 +149,30 @@ button.secondary {
 #btnSkipQuestion {
     margin-left: 8px;
 }
+
+.custom-test-actions {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.custom-test-actions .form-group--inline {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.custom-test-actions .form-group--inline label {
+    margin: 0;
+    font-size: 14px;
+}
+
+.custom-test-actions select {
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid #ccc;
+    font-size: 14px;
+    min-width: 200px;
+}

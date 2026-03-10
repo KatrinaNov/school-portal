@@ -175,20 +175,36 @@ function renderSubject(classId, subjectId) {
                 { label: subject.name }
             ]);
             var hasAnyQuiz = paragraphs.some(function (p) { return p.quizzes && p.quizzes.length; });
+            var hasAnyData = paragraphs.some(function (p) {
+                return (p.dates && p.dates.length) || (p.terms && p.terms.length) || (p.people && p.people.length);
+            });
+            var canBuildTest = hasAnyQuiz || hasAnyData;
             var paragraphsHTML = "";
             paragraphs.forEach(function (p) {
                 var hasQuiz = p.quizzes && p.quizzes.length;
+                var hasData = (p.dates && p.dates.length) || (p.terms && p.terms.length) || (p.people && p.people.length);
+                var showCheckbox = hasQuiz || hasData;
                 paragraphsHTML += "<div class=\"paragraph-item\"><div class=\"card\" data-paragraph-path=\"" + escapeHtml(subject.path) + "\" data-paragraph-id=\"" + escapeHtml(String(p.id)) + "\">" + escapeHtml(p.title || "") + "</div>";
-                if (hasQuiz) {
+                if (showCheckbox) {
                     paragraphsHTML += "<label class=\"checkbox-label\"><input type=\"checkbox\" value=\"" + escapeHtml(String(p.id)) + "\" class=\"paragraph-checkbox\">Добавить в свой тест</label>";
                 } else {
                     paragraphsHTML += "<small class=\"no-quiz\">Тестов пока нет</small>";
                 }
                 paragraphsHTML += "</div>";
             });
+            var typeSelect = "";
+            if (canBuildTest && typeof QuizGenerators !== "undefined" && QuizGenerators.SOURCE_PARAGRAPHS) {
+                typeSelect = "<div class=\"form-group form-group--inline\"><label for=\"customTestType\">Тип теста:</label><select id=\"customTestType\">" +
+                    "<option value=\"" + escapeHtml(QuizGenerators.SOURCE_PARAGRAPHS) + "\">По тестам параграфов</option>" +
+                    "<option value=\"" + escapeHtml(QuizGenerators.SOURCE_DATES) + "\">По датам</option>" +
+                    "<option value=\"" + escapeHtml(QuizGenerators.SOURCE_TERMS) + "\">По понятиям</option>" +
+                    "<option value=\"" + escapeHtml(QuizGenerators.SOURCE_PEOPLE) + "\">По персонам</option>" +
+                    "<option value=\"" + escapeHtml(QuizGenerators.SOURCE_COMBINED) + "\">Комбинированный</option>" +
+                    "</select></div>";
+            }
             var html = "<div class=\"container\"><h1>" + escapeHtml(subject.name) + "</h1><h2>Темы</h2>" + paragraphsHTML;
-            if (hasAnyQuiz) {
-                html += "<button id=\"btnCustomTest\" data-path=\"" + escapeHtml(subject.path) + "\">Составить тест</button>";
+            if (canBuildTest) {
+                html += "<div class=\"custom-test-actions\">" + typeSelect + "<button id=\"btnCustomTest\" data-path=\"" + escapeHtml(subject.path) + "\">Составить тест</button></div>";
             }
             html += "<button id=\"btnBackSubject\">Назад</button></div>";
             app.innerHTML = html;
@@ -197,9 +213,12 @@ function renderSubject(classId, subjectId) {
                     Router.navigate(Router.hashForParagraph(classId, subjectId, el.getAttribute("data-paragraph-id")));
                 });
             });
-            if (hasAnyQuiz) {
+            if (canBuildTest) {
                 document.getElementById("btnCustomTest").addEventListener("click", function () {
-                    createCustomTest(this.getAttribute("data-path"));
+                    var path = this.getAttribute("data-path");
+                    var typeEl = document.getElementById("customTestType");
+                    var type = typeEl ? typeEl.value : undefined;
+                    createCustomTest(path, type);
                 });
             }
             document.getElementById("btnBackSubject").addEventListener("click", function () { Router.navigate(Router.hashForClass(classId)); });
