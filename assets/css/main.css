@@ -176,3 +176,20 @@ button.secondary {
     font-size: 14px;
     min-width: 200px;
 }
+
+.content-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    display: block;
+    margin: 10px 0;
+}
+
+.paragraph-image .content-image { margin-top: 0; }
+.section-image .content-image,
+.date-image .content-image,
+.term-image .content-image,
+.person-image .content-image { margin: 6px 0; }
+.date-image .content-image,
+.term-image .content-image,
+.person-image .content-image { max-width: 120px; vertical-align: middle; margin-right: 8px; }

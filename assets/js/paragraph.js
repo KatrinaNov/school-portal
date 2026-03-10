@@ -18,11 +18,22 @@ function openParagraph(path, id) {
             var subjectId = curr.subjectId;
             var subjectName = (CONFIG.classes[classId] && CONFIG.classes[classId].subjects[subjectId]) ? CONFIG.classes[classId].subjects[subjectId].name : "Предмет";
 
+            function imageHtml(basePath, imageValue) {
+                if (!imageValue || typeof imageValue !== "string") return "";
+                var v = imageValue.trim();
+                if (!v || /javascript:|data:\s*text\/html/i.test(v)) return "";
+                var src = (v.indexOf("/") === 0 || v.indexOf("http") === 0) ? v : (basePath + v.replace(/^\.\//, ""));
+                return "<img src=\"" + escapeHtml(src) + "\" alt=\"\" class=\"content-image\" loading=\"lazy\">";
+            }
+
+            var paragraphImageHtml = imageHtml(path, p.image);
+
             var sectionsHtml = "";
             if (p.sections && p.sections.length) {
                 sectionsHtml = "<h2>Основные разделы</h2>";
                 p.sections.forEach(function (s) {
-                    sectionsHtml += "<div class=\"section-block\"><h3>" + escapeHtml((s && s.title) || "") + "</h3><p>" + formatParagraphText((s && s.content) || "") + "</p></div>";
+                    var sectionImg = imageHtml(path, s && s.image);
+                    sectionsHtml += "<div class=\"section-block\"><h3>" + escapeHtml((s && s.title) || "") + "</h3>" + (sectionImg ? "<div class=\"section-image\">" + sectionImg + "</div>" : "") + "<p>" + formatParagraphText((s && s.content) || "") + "</p></div>";
                 });
             }
 
@@ -30,7 +41,8 @@ function openParagraph(path, id) {
             if (p.dates && p.dates.length) {
                 datesHtml = "<h2>Важные даты</h2><ul>";
                 p.dates.forEach(function (d) {
-                    datesHtml += "<li><strong>" + escapeHtml((d && d.year) || "") + "</strong> — " + escapeHtml((d && d.event) || "") + "</li>";
+                    var dateImg = imageHtml(path, d && d.image);
+                    datesHtml += "<li>" + (dateImg ? "<span class=\"date-image\">" + dateImg + "</span>" : "") + "<strong>" + escapeHtml((d && d.year) || "") + "</strong> — " + escapeHtml((d && d.event) || "") + "</li>";
                 });
                 datesHtml += "</ul>";
             }
@@ -39,7 +51,8 @@ function openParagraph(path, id) {
             if (p.terms && p.terms.length) {
                 termsHtml = "<h2>Понятия</h2><ul>";
                 p.terms.forEach(function (t) {
-                    termsHtml += "<li><strong>" + escapeHtml((t && t.term) || "") + "</strong> — " + escapeHtml((t && t.definition) || "") + "</li>";
+                    var termImg = imageHtml(path, t && t.image);
+                    termsHtml += "<li>" + (termImg ? "<span class=\"term-image\">" + termImg + "</span>" : "") + "<strong>" + escapeHtml((t && t.term) || "") + "</strong> — " + escapeHtml((t && t.definition) || "") + "</li>";
                 });
                 termsHtml += "</ul>";
             }
@@ -48,7 +61,8 @@ function openParagraph(path, id) {
             if (p.people && p.people.length) {
                 peopleHtml = "<h2>Исторические личности</h2><ul>";
                 p.people.forEach(function (person) {
-                    peopleHtml += "<li><strong>" + escapeHtml((person && person.name) || "") + "</strong> — " + escapeHtml((person && person.info) || "") + "</li>";
+                    var personImg = imageHtml(path, person && person.image);
+                    peopleHtml += "<li>" + (personImg ? "<span class=\"person-image\">" + personImg + "</span>" : "") + "<strong>" + escapeHtml((person && person.name) || "") + "</strong> — " + escapeHtml((person && person.info) || "") + "</li>";
                 });
                 peopleHtml += "</ul>";
             }
@@ -74,7 +88,7 @@ function openParagraph(path, id) {
                 { label: (p.title || "") }
             ]);
 
-            app.innerHTML = "<div class=\"container\"><h1>" + escapeHtml(p.title || "") + "</h1><h2>Кратко</h2><p>" + formatParagraphText(p.summary || "") + "</p>" + sectionsHtml + datesHtml + termsHtml + peopleHtml + quizHtml + "<button class=\"secondary\" id=\"btnBackToSubject\">Назад к предмету</button></div>";
+            app.innerHTML = "<div class=\"container\"><h1>" + escapeHtml(p.title || "") + "</h1>" + (paragraphImageHtml ? "<div class=\"paragraph-image\">" + paragraphImageHtml + "</div>" : "") + "<h2>Кратко</h2><p>" + formatParagraphText(p.summary || "") + "</p>" + sectionsHtml + datesHtml + termsHtml + peopleHtml + quizHtml + "<button class=\"secondary\" id=\"btnBackToSubject\">Назад к предмету</button></div>";
 
             app.querySelectorAll(".quiz-card").forEach(function (el) {
                 el.addEventListener("click", function () {
