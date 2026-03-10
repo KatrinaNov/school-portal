@@ -152,7 +152,8 @@ school-portal/
 │   ├── schema.json         # Описание схемы (опционально, для валидации)
 │   ├── config.json         # Классы и предметы (или оставить data.js)
 │   └── <classId>/
-│       └── <subjectId>/
+│       └── 
+<subjectId>/
 │           ├── content.json  # Единый файл: paragraphs + quizzes (целевой вариант)
 │           ├── paragraphs.json
 │           ├── quiz-*.json

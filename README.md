@@ -47,6 +47,9 @@
 
 Поля `sections`, `dates`, `terms`, `people`, `quizzes` — опциональны.
 
+**Альтернатива: единый `content.json` (целевой формат v1)**  
+В папке предмета можно положить один файл **`content.json`** с полями `version`, `meta`, `paragraphs`, `quizzes`. Тогда загрузчик использует его вместо `paragraphs.json` и отдельных файлов тестов. Схема и пример: см. `docs/data-schema.md` и `data/schema-v1.json`; пример файла — `data/2/math/content.json`.
+
 ### Тест (`quiz-*.json`)
 
 ```json

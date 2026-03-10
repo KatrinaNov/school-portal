@@ -1,6 +1,6 @@
 /**
  * Data layer: загрузка и кэширование JSON.
- * Повторные переходы "Назад" не делают повторный fetch.
+ * Поддерживает целевой формат content.json (ROADMAP 3.2) с fallback на paragraphs.json + quiz-*.json.
  */
 var Api = (function () {
     var cache = {};
@@ -20,11 +20,36 @@ var Api = (function () {
         });
     }
 
+    /**
+     * Загрузка параграфов: сначала пробуем content.json (единый формат v1),
+     * при отсутствии или ошибке — paragraphs.json.
+     */
     function getParagraphs(path) {
-        var key = path + "paragraphs.json";
-        return getCached(key, function () {
-            return fetchJson(key);
-        });
+        var paragraphsKey = path + "paragraphs.json";
+        if (cache[paragraphsKey]) return Promise.resolve(cache[paragraphsKey]);
+
+        var contentUrl = path + "content.json";
+        return fetch(contentUrl)
+            .then(function (res) {
+                if (!res.ok) throw new Error("content.json not found");
+                return res.json();
+            })
+            .then(function (data) {
+                if (typeof ContentAdapter !== "undefined" && ContentAdapter.isContentFormat && ContentAdapter.isContentFormat(data)) {
+                    var result = ContentAdapter.normalize(data, path);
+                    cache[paragraphsKey] = result.paragraphs;
+                    (result.quizCacheEntries || []).forEach(function (entry) {
+                        cache[entry.key] = entry.value;
+                    });
+                    return result.paragraphs;
+                }
+                throw new Error("Not content format");
+            })
+            .catch(function () {
+                return getCached(paragraphsKey, function () {
+                    return fetchJson(paragraphsKey);
+                });
+            });
     }
 
     function getQuiz(fullPath) {

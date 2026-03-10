@@ -1,0 +1,126 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "School Portal content.json (v1)",
+  "description": "Единый файл контента по предмету: параграфы и тесты",
+  "type": "object",
+  "required": ["version", "paragraphs", "quizzes"],
+  "properties": {
+    "version": { "type": "integer", "const": 1 },
+    "meta": {
+      "type": "object",
+      "properties": {
+        "classId": { "type": "string" },
+        "subjectId": { "type": "string" },
+        "title": { "type": "string" },
+        "updated": { "type": "string" }
+      }
+    },
+    "paragraphs": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/paragraph" }
+    },
+    "quizzes": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/quiz" }
+    }
+  },
+  "definitions": {
+    "paragraph": {
+      "type": "object",
+      "required": ["id", "title", "summary"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "summary": { "type": "string" },
+        "image": { "type": ["string", "null"] },
+        "sections": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "title": { "type": "string" },
+              "content": { "type": "string" },
+              "image": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "dates": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "year": { "type": "string" },
+              "event": { "type": "string" },
+              "image": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "terms": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "term": { "type": "string" },
+              "definition": { "type": "string" },
+              "image": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "people": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "name": { "type": "string" },
+              "info": { "type": "string" },
+              "image": { "type": ["string", "null"] }
+            }
+          }
+        },
+        "quizzes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "id": { "type": "string" },
+              "title": { "type": "string" },
+              "source": { "type": "string" }
+            }
+          }
+        }
+      }
+    },
+    "quiz": {
+      "type": "object",
+      "required": ["id", "title", "questions"],
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "source": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["easy", "medium", "hard"] },
+        "questions": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/question" }
+        }
+      }
+    },
+    "question": {
+      "type": "object",
+      "required": ["type", "q"],
+      "properties": {
+        "type": { "type": "string", "enum": ["choice", "input"] },
+        "q": { "type": "string" },
+        "a": { "type": "array", "items": { "type": "string" } },
+        "c": { "type": "integer" },
+        "answer": { "type": "string" },
+        "answers": { "type": "array", "items": { "type": "string" } },
+        "hint": { "type": "string" },
+        "explanation": { "type": "string" },
+        "image": { "type": ["string", "null"] }
+      }
+    }
+  }
+}
