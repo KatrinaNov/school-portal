@@ -49,14 +49,15 @@
         var questions = [];
 
         terms.forEach(function (t) {
+            var variants = [];
             if (t.definition) {
                 var wrongDefs = pickWrongOptions(t.definition, defStrs, 3);
                 var opts = [t.definition].concat(wrongDefs);
                 shuffleArray(opts);
                 var c = opts.indexOf(t.definition);
                 if (c === -1) c = 0;
-                questions.push({ type: "choice", q: "Что такое «" + t.term + "»?", a: opts, c: c });
-                questions.push({ type: "input", q: "Дайте определение термину «" + t.term + "»", answer: t.definition });
+                variants.push({ type: "choice", q: "Что такое «" + t.term + "»?", a: opts, c: c });
+                variants.push({ type: "input", q: "Дайте определение термину «" + t.term + "»", answer: t.definition });
             }
             if (t.term) {
                 var wrongTerms = pickWrongOptions(t.term, termStrs, 3);
@@ -64,8 +65,11 @@
                 shuffleArray(optsT);
                 var cT = optsT.indexOf(t.term);
                 if (cT === -1) cT = 0;
-                questions.push({ type: "choice", q: "Как называется: «" + t.definition + "»?", a: optsT, c: cT });
-                questions.push({ type: "input", q: "Назовите термин по определению: «" + t.definition + "»", answer: t.term });
+                variants.push({ type: "choice", q: "Как называется: «" + t.definition + "»?", a: optsT, c: cT });
+                variants.push({ type: "input", q: "Назовите термин по определению: «" + t.definition + "»", answer: t.term });
+            }
+            if (variants.length > 0) {
+                questions.push(variants[Math.floor(Math.random() * variants.length)]);
             }
         });
 

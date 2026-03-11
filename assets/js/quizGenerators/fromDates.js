@@ -55,14 +55,15 @@
         var questions = [];
 
         dates.forEach(function (d) {
+            var variants = [];
             if (d.event) {
                 var wrongYears = pickWrongOptions(d.year, years, 3);
                 var opts = [d.year].concat(wrongYears);
                 shuffleArray(opts);
                 var c = opts.indexOf(d.year);
                 if (c === -1) c = 0;
-                questions.push({ type: "choice", q: "В каком году произошло: «" + d.event + "»?", a: opts, c: c });
-                questions.push({ type: "input", q: "Напишите год события: «" + d.event + "»", answer: d.year });
+                variants.push({ type: "choice", q: "В каком году произошло: «" + d.event + "»?", a: opts, c: c });
+                variants.push({ type: "input", q: "Напишите год события: «" + d.event + "»", answer: d.year });
             }
             if (d.year) {
                 var wrongEvents = pickWrongOptions(d.event, events, 3);
@@ -70,8 +71,11 @@
                 shuffleArray(optsEv);
                 var cEv = optsEv.indexOf(d.event);
                 if (cEv === -1) cEv = 0;
-                questions.push({ type: "choice", q: "Какое событие произошло в " + d.year + " году?", a: optsEv, c: cEv });
-                questions.push({ type: "input", q: "Напишите событие для года " + d.year, answer: d.event });
+                variants.push({ type: "choice", q: "Какое событие произошло в " + d.year + " году?", a: optsEv, c: cEv });
+                variants.push({ type: "input", q: "Напишите событие для года " + d.year, answer: d.event });
+            }
+            if (variants.length > 0) {
+                questions.push(variants[Math.floor(Math.random() * variants.length)]);
             }
         });
 

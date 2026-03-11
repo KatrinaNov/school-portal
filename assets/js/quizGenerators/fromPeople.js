@@ -53,14 +53,15 @@
         var questions = [];
 
         people.forEach(function (h) {
+            var variants = [];
             if (h.info) {
                 var wrongInfos = pickWrongOptions(h.info, infos, 3);
                 var opts = [h.info].concat(wrongInfos);
                 shuffleArray(opts);
                 var c = opts.indexOf(h.info);
                 if (c === -1) c = 0;
-                questions.push({ type: "choice", q: "Кто такой(ая) «" + h.name + "»?", a: opts, c: c });
-                questions.push({ type: "input", q: "Кратко: кто такой(ая) «" + h.name + "»?", answer: h.info });
+                variants.push({ type: "choice", q: "Кто такой(ая) «" + h.name + "»?", a: opts, c: c });
+                variants.push({ type: "input", q: "Кратко: кто такой(ая) «" + h.name + "»?", answer: h.info });
             }
             if (h.name) {
                 var wrongNames = pickWrongOptions(h.name, names, 3);
@@ -68,8 +69,11 @@
                 shuffleArray(optsN);
                 var cN = optsN.indexOf(h.name);
                 if (cN === -1) cN = 0;
-                questions.push({ type: "choice", q: "О ком идёт речь: «" + (h.info || "—") + "»?", a: optsN, c: cN });
-                questions.push({ type: "input", q: "Назовите имя по описанию: «" + (h.info || "") + "»", answer: h.name });
+                variants.push({ type: "choice", q: "О ком идёт речь: «" + (h.info || "—") + "»?", a: optsN, c: cN });
+                variants.push({ type: "input", q: "Назовите имя по описанию: «" + (h.info || "") + "»", answer: h.name });
+            }
+            if (variants.length > 0) {
+                questions.push(variants[Math.floor(Math.random() * variants.length)]);
             }
         });
 
