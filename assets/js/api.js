@@ -25,30 +25,46 @@ var Api = (function () {
      * при отсутствии или ошибке — paragraphs.json.
      */
     function getParagraphs(path) {
+        if (!path || typeof path !== "string") return Promise.reject(new Error("Путь не указан"));
+        path = path.replace(/\/?$/, "/");
         var paragraphsKey = path + "paragraphs.json";
         if (cache[paragraphsKey]) return Promise.resolve(cache[paragraphsKey]);
 
         var contentUrl = path + "content.json";
+
+        function loadParagraphsFallback() {
+            return getCached(paragraphsKey, function () {
+                return fetchJson(paragraphsKey);
+            }).then(function (data) {
+                return Array.isArray(data) ? data : [];
+            });
+        }
+
         return fetch(contentUrl)
             .then(function (res) {
                 if (!res.ok) throw new Error("content.json not found");
                 return res.json();
             })
             .then(function (data) {
+                if (!data || typeof data !== "object") throw new Error("Invalid content");
                 if (typeof ContentAdapter !== "undefined" && ContentAdapter.isContentFormat && ContentAdapter.isContentFormat(data)) {
-                    var result = ContentAdapter.normalize(data, path);
-                    cache[paragraphsKey] = result.paragraphs;
-                    (result.quizCacheEntries || []).forEach(function (entry) {
-                        cache[entry.key] = entry.value;
-                    });
-                    return result.paragraphs;
+                    try {
+                        var result = ContentAdapter.normalize(data, path);
+                        var list = result && result.paragraphs;
+                        if (!Array.isArray(list)) return loadParagraphsFallback();
+                        cache[paragraphsKey] = list;
+                        (result.quizCacheEntries || []).forEach(function (entry) {
+                            cache[entry.key] = entry.value;
+                        });
+                        return list;
+                    } catch (e) {
+                        return loadParagraphsFallback();
+                    }
                 }
                 throw new Error("Not content format");
             })
             .catch(function () {
-                return getCached(paragraphsKey, function () {
-                    return fetchJson(paragraphsKey);
-                });
+                return loadParagraphsFallback();
             });
     }
 

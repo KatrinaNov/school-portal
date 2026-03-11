@@ -207,9 +207,13 @@ function renderSubject(classId, subjectId) {
                     "<option value=\"" + escapeHtml(QuizGenerators.SOURCE_COMBINED) + "\">Комбинированный</option>" +
                     "</select></div>";
             }
+            var limitSelect = "";
+            if (canBuildTest) {
+                limitSelect = "<div class=\"form-group form-group--inline\"><label for=\"customTestLimit\">Вопросов в тесте:</label><input type=\"number\" id=\"customTestLimit\" min=\"1\" max=\"50\" value=\"20\" step=\"1\"></div>";
+            }
             var html = "<div class=\"container\"><h1>" + escapeHtml(subject.name) + "</h1><h2>Темы</h2>" + paragraphsHTML;
             if (canBuildTest) {
-                html += "<div class=\"custom-test-actions\">" + typeSelect + "<button id=\"btnCustomTest\" data-path=\"" + escapeHtml(subject.path) + "\">Составить тест</button></div>";
+                html += "<div class=\"custom-test-actions\">" + typeSelect + limitSelect + "<button id=\"btnCustomTest\" data-path=\"" + escapeHtml(subject.path) + "\">Составить тест</button></div>";
             }
             html += "<button id=\"btnBackSubject\">Назад</button></div>";
             app.innerHTML = html;
@@ -223,7 +227,13 @@ function renderSubject(classId, subjectId) {
                     var path = this.getAttribute("data-path");
                     var typeEl = document.getElementById("customTestType");
                     var type = typeEl ? typeEl.value : undefined;
-                    createCustomTest(path, type);
+                    var limitEl = document.getElementById("customTestLimit");
+                    var limit = 20;
+                    if (limitEl) {
+                        var n = parseInt(limitEl.value, 10);
+                        if (!isNaN(n) && n >= 1 && n <= 50) limit = n;
+                    }
+                    createCustomTest(path, type, limit);
                 });
             }
             document.getElementById("btnBackSubject").addEventListener("click", function () { Router.navigate(Router.hashForClass(classId)); });

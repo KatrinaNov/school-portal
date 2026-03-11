@@ -452,6 +452,12 @@ input[type="text"]::placeholder,
     border-color: var(--orange);
 }
 
+.custom-test-actions #customTestLimit {
+    min-width: 0;
+    width: 4rem;
+    text-align: center;
+}
+
 .content-image {
     max-width: 100%;
     height: auto;

@@ -287,7 +287,7 @@
         }
     }
 
-    function createCustomTest(subjectPath, sourceType) {
+    function createCustomTest(subjectPath, sourceType, questionLimit) {
         var checked = document.querySelectorAll && document.querySelectorAll(".paragraph-checkbox:checked");
         if (!checked || checked.length === 0) {
             alert("Выберите хотя бы один параграф");
@@ -295,11 +295,14 @@
         }
         var selectedIds = Array.from(checked).map(function (c) { return c.value; });
         var type = (sourceType != null && sourceType !== "") ? sourceType : (typeof QuizGenerators !== "undefined" && QuizGenerators.SOURCE_PARAGRAPHS ? QuizGenerators.SOURCE_PARAGRAPHS : "paragraphs");
+        var limit = 20;
+        if (typeof questionLimit === "number" && questionLimit >= 1 && questionLimit <= 50) limit = questionLimit;
+        else if (typeof questionLimit === "string") { var n = parseInt(questionLimit, 10); if (!isNaN(n) && n >= 1 && n <= 50) limit = n; }
 
         if (typeof showLoader === "function") showLoader("Составление теста...");
 
         if (typeof QuizGenerators !== "undefined" && typeof QuizGenerators.run === "function") {
-            QuizGenerators.run(type, subjectPath, selectedIds, { limit: 20 })
+            QuizGenerators.run(type, subjectPath, selectedIds, { limit: limit })
                 .then(function (result) {
                     if (!result || !result.questions || result.questions.length === 0) {
                         getContainer().innerHTML = "<div class=\"container\"><p>Для выбранных параграфов и типа теста нет вопросов</p><button id=\"btnBack\">Назад</button></div>";
@@ -349,7 +352,8 @@
                     if (b) b.addEventListener("click", function () { renderSubjectFromPath(subjectPath); });
                     return;
                 }
-                var finalQuestions = Engine.takeRandomQuestions ? Engine.takeRandomQuestions(allQuestions, 20) : (Engine.shuffleArray ? Engine.shuffleArray(allQuestions).slice(0, 20) : allQuestions.slice(0, 20));
+                var limitNum = limit;
+                var finalQuestions = Engine.takeRandomQuestions ? Engine.takeRandomQuestions(allQuestions, limitNum) : (Engine.shuffleArray ? Engine.shuffleArray(allQuestions).slice(0, limitNum) : allQuestions.slice(0, limitNum));
                 startQuiz({ title: "Свой тест", questions: finalQuestions }, function () { renderSubjectFromPath(subjectPath); });
             }).catch(function () {
                 getContainer().innerHTML = "<div class=\"container\"><p>Ошибка загрузки тестов</p><button id=\"btnBack\">Назад</button></div>";
