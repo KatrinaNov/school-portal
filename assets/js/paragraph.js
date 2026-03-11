@@ -88,7 +88,7 @@ function openParagraph(path, id) {
                 { label: (p.title || "") }
             ]);
 
-            app.innerHTML = "<div class=\"container\"><h1>" + escapeHtml(p.title || "") + "</h1>" + (paragraphImageHtml ? "<div class=\"paragraph-image\">" + paragraphImageHtml + "</div>" : "") + "<h2>Кратко</h2><p>" + formatParagraphText(p.summary || "") + "</p>" + sectionsHtml + datesHtml + termsHtml + peopleHtml + quizHtml + "<button class=\"secondary\" id=\"btnBackToSubject\">Назад к предмету</button></div>";
+            app.innerHTML = "<div class=\"container\"><h1>" + escapeHtml(p.title || "") + "</h1><p class=\"paragraph-welcome\">Привет! Здесь интересная тема. Прочитай — потом проверишь себя в тесте.</p>" + (paragraphImageHtml ? "<div class=\"paragraph-image\">" + paragraphImageHtml + "</div>" : "") + "<h2>Кратко</h2><p>" + formatParagraphText(p.summary || "") + "</p>" + sectionsHtml + datesHtml + termsHtml + peopleHtml + quizHtml + "<button class=\"secondary\" id=\"btnBackToSubject\">Назад к предмету</button></div>";
 
             app.querySelectorAll(".quiz-card").forEach(function (el) {
                 el.addEventListener("click", function () {

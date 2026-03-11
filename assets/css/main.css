@@ -1,68 +1,102 @@
+:root {
+    --orange: #ff6600;
+    --peach: #ffb347;
+    --cream: #ffefc5;
+    --gradient-main: linear-gradient(120deg, #f6d365, #fda085);
+    --gradient-card: linear-gradient(120deg, #ffb347, #ffefc5);
+    --gradient-card-hover: linear-gradient(120deg, #ff9a2e, #ffe4a8);
+    --text-black: #000;
+    --shadow-playful: 0 6px 20px rgba(255, 102, 0, 0.2);
+    --shadow-card: 0 4px 14px rgba(255, 102, 0, 0.18);
+}
+
 body {
     margin: 0;
-    font-family: 'Inter', sans-serif;
-    background: #f4f6fb;
+    font-family: 'Roboto', 'Segoe UI', system-ui, sans-serif;
+    background: var(--cream);
+    background-image: linear-gradient(180deg, #fff5e6 0%, var(--cream) 40%, #ffefc5 100%);
     display: flex;
     flex-direction: column;
     min-height: 100vh;
+    color: var(--text-black);
 }
 
 header {
-    background: #1e3c72;
-    color: white;
-    padding: 15px 30px;
+    background: var(--gradient-main);
+    color: var(--text-black);
+    padding: 16px 30px;
     font-size: 20px;
-    font-weight: bold;
+    font-weight: 700;
+    box-shadow: 0 2px 12px rgba(255, 102, 0, 0.25);
+    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
 }
 
 main {
     flex: 1;
-    padding: 20px;
+    padding: 24px 20px;
 }
 
 footer {
-    background: #111;
-    color: #aaa;
+    background: linear-gradient(120deg, #ff6600 0%, #e55a00 100%);
+    color: var(--text-black);
     text-align: center;
-    padding: 15px;
+    padding: 16px;
     font-size: 14px;
+    font-weight: 600;
 }
 
 .container {
     max-width: 900px;
     margin: auto;
-    background: white;
+    background: rgba(255, 255, 250, 0.98);
     padding: 30px;
-    border-radius: 16px;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    border-radius: 20px;
+    box-shadow: var(--shadow-playful);
+    border: 2px solid rgba(255, 179, 71, 0.5);
+    color: var(--text-black);
 }
 
 .card {
-    padding: 15px;
+    padding: 16px 20px;
     margin: 10px 0;
-    background: linear-gradient(135deg,#2a5298,#1e3c72);
-    color: white;
-    border-radius: 10px;
+    background: var(--gradient-card);
+    color: var(--text-black);
+    border-radius: 14px;
     cursor: pointer;
-    transition: 0.2s;
+    transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+    box-shadow: var(--shadow-card);
+    border: 2px solid rgba(255, 102, 0, 0.3);
+    font-weight: 700;
 }
 
 .card:hover {
-    transform: translateY(-3px);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 24px rgba(255, 102, 0, 0.28);
+    background: var(--gradient-card-hover);
 }
 
 button {
-    padding: 10px 15px;
+    padding: 10px 18px;
     border: none;
-    border-radius: 6px;
-    background: #2a5298;
-    color: white;
+    border-radius: 10px;
+    background: linear-gradient(120deg, var(--orange), var(--peach));
+    color: var(--text-black);
     cursor: pointer;
     margin-top: 10px;
+    font-weight: 700;
+    box-shadow: 0 2px 10px rgba(255, 102, 0, 0.3);
+    transition: transform 0.15s, box-shadow 0.15s;
+    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
+}
+
+button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 4px 14px rgba(255, 102, 0, 0.35);
 }
 
 button.secondary {
-    background: #999;
+    background: linear-gradient(120deg, #ffb347, #ffd699);
+    color: var(--text-black);
 }
 
 .correct { background: #27ae60 !important; }
@@ -77,24 +111,142 @@ button.secondary {
     max-width: 900px;
     margin: 0 auto 15px auto;
     font-size: 14px;
-    color: #666;
+    color: var(--text-black);
 }
 
 #breadcrumbs span.breadcrumb-link {
     cursor: pointer;
-    color: #2a5298;
+    color: var(--orange);
+    font-weight: 600;
 }
 #breadcrumbs span.breadcrumb-link:hover {
     text-decoration: underline;
+    color: #e55a00;
+}
+
+/* Hero block on home */
+.home-hero {
+    text-align: center;
+    padding: 32px 24px 28px;
+    margin: -30px -30px 28px -30px;
+    border-radius: 20px 20px 0 0;
+    background: linear-gradient(120deg, rgba(246, 211, 101, 0.5) 0%, rgba(253, 160, 133, 0.4) 100%);
+    border-bottom: 2px solid rgba(255, 102, 0, 0.35);
+}
+.home-hero h1 {
+    margin: 0 0 12px;
+    font-size: 1.75rem;
+    color: var(--text-black);
+    font-weight: 700;
+}
+.home-hero .hero-tagline {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--text-black);
+    line-height: 1.5;
+    max-width: 520px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.home-classes-title {
+    font-size: 1.1rem;
+    color: var(--text-black);
+    margin-bottom: 16px;
+    font-weight: 700;
+}
+
+/* Приветственные блоки в параграфах и тестах */
+.paragraph-welcome {
+    margin: 0 0 1rem;
+    padding: 10px 14px;
+    background: linear-gradient(120deg, rgba(255, 179, 71, 0.4), rgba(255, 239, 197, 0.6));
+    border-radius: 12px;
+    border-left: 4px solid var(--orange);
+    font-size: 1rem;
+    color: var(--text-black);
+}
+.quiz-welcome {
+    margin: 0 0 1rem;
+    padding: 10px 14px;
+    background: linear-gradient(120deg, rgba(246, 211, 101, 0.5), rgba(253, 160, 133, 0.3));
+    border-radius: 12px;
+    border-left: 4px solid var(--orange);
+    font-size: 1rem;
+    color: var(--text-black);
 }
 .paragraph-item {
     margin-bottom: 20px;
 }
 
+/* --- Инпуты --- */
+input[type="text"],
+input[type="number"],
+.input-answer {
+    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
+    font-size: 1rem;
+    padding: 12px 16px;
+    border: 2px solid rgba(255, 102, 0, 0.5);
+    border-radius: 12px;
+    background: var(--cream);
+    color: var(--text-black);
+    min-width: 200px;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+input[type="text"]:focus,
+input[type="number"]:focus,
+.input-answer:focus {
+    outline: none;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.25);
+}
+input[type="text"]::placeholder,
+.input-answer::placeholder {
+    color: rgba(0, 0, 0, 0.5);
+}
+.input-answer.correct {
+    border-color: #27ae60;
+    background: #e8f5e9;
+}
+.input-answer.wrong {
+    border-color: #e74c3c;
+    background: #fde8e8;
+}
+
+/* --- Чекбоксы --- */
 .checkbox-label {
-    display: block;
-    margin-top: 6px;
-    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
+    font-weight: 600;
+    color: var(--text-black);
+}
+.checkbox-label input[type="checkbox"],
+.paragraph-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 22px;
+    height: 22px;
+    border: 2px solid var(--orange);
+    border-radius: 6px;
+    background: var(--cream);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.checkbox-label input[type="checkbox"]:hover,
+.paragraph-checkbox:hover {
+    border-color: #e55a00;
+    box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2);
+}
+.checkbox-label input[type="checkbox"]:checked,
+.paragraph-checkbox:checked {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 10'%3E%3Cpath fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' d='M1 5l3 3 7-7'/%3E%3C/svg%3E") no-repeat center,
+                linear-gradient(120deg, var(--orange), var(--peach));
+    border-color: var(--orange);
 }
 
 .no-quiz {
@@ -108,8 +260,8 @@ button.secondary {
     width: 48px;
     height: 48px;
     margin: 20px auto;
-    border: 4px solid #e0e0e0;
-    border-top-color: #2a5298;
+    border: 4px solid rgba(255, 179, 71, 0.4);
+    border-top-color: var(--orange);
     border-radius: 50%;
     animation: loader-spin 0.8s linear infinite;
 }
@@ -170,11 +322,25 @@ button.secondary {
 }
 
 .custom-test-actions select {
-    padding: 8px 12px;
-    border-radius: 6px;
-    border: 1px solid #ccc;
-    font-size: 14px;
+    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
+    padding: 10px 14px;
+    border-radius: 10px;
+    border: 2px solid rgba(255, 102, 0, 0.5);
+    background: var(--cream);
+    color: var(--text-black);
+    font-size: 15px;
+    font-weight: 600;
     min-width: 200px;
+    cursor: pointer;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+.custom-test-actions select:focus {
+    outline: none;
+    border-color: var(--orange);
+    box-shadow: 0 0 0 3px rgba(255, 102, 0, 0.25);
+}
+.custom-test-actions select:hover {
+    border-color: var(--orange);
 }
 
 .content-image {

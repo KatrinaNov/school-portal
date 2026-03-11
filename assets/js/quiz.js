@@ -60,7 +60,7 @@
         }
         var correctBlock = "<div id=\"" + correctId + "\" class=\"quiz-feedback quiz-feedback--correct\" hidden aria-live=\"polite\"></div>";
         var skipBtn = options.showSkip ? "<button class=\"secondary\" id=\"btnSkipQuestion\">Пропустить вопрос</button>" : "";
-        return "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(quizTitle) : quizTitle) + "</h1><div class=\"progress\">" + (current + 1) + " из " + total + "</div><h2>" + (typeof escapeHtml === "function" ? escapeHtml((question.q != null) ? String(question.q) : "") : (question.q != null ? String(question.q) : "")) + "</h2>" + answersHtml + "<div id=\"" + feedbackId + "\" class=\"quiz-feedback\" aria-live=\"polite\"></div>" + correctBlock + skipBtn + "<button class=\"secondary\" id=\"exitQuizBtn\">Выйти из теста</button></div>";
+        return "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(quizTitle) : quizTitle) + "</h1><p class=\"quiz-welcome\">Ты справишься! Выбери правильный ответ или введи его в поле.</p><div class=\"progress\">" + (current + 1) + " из " + total + "</div><h2>" + (typeof escapeHtml === "function" ? escapeHtml((question.q != null) ? String(question.q) : "") : (question.q != null ? String(question.q) : "")) + "</h2>" + answersHtml + "<div id=\"" + feedbackId + "\" class=\"quiz-feedback\" aria-live=\"polite\"></div>" + correctBlock + skipBtn + "<button class=\"secondary\" id=\"exitQuizBtn\">Выйти из теста</button></div>";
     }
 
     function attachChoiceHandlers(container, onChoice) {
@@ -230,7 +230,7 @@
             if (!container) return;
             var total = questions.length;
             var pct = total ? Math.round((correct / total) * 100) : 0;
-            container.innerHTML = "<div class=\"container\"><h1>Тест завершён</h1><p>Правильных: " + correct + "</p><p>Ошибок: " + wrong + "</p><p>Пропущено: " + skipped + "</p><p>Процент: " + pct + "%</p><button id=\"btnQuizResultBack\">Назад</button></div>";
+            container.innerHTML = "<div class=\"container\"><h1>Тест завершён</h1><p class=\"quiz-welcome\">Молодец, что прошёл до конца! Вот твои результаты.</p><p>Правильных: " + correct + "</p><p>Ошибок: " + wrong + "</p><p>Пропущено: " + skipped + "</p><p>Процент: " + pct + "%</p><button id=\"btnQuizResultBack\">Назад</button></div>";
             var btn = container.querySelector("#btnQuizResultBack");
             if (btn) btn.addEventListener("click", function () {
                 if (typeof backAction === "function") backAction();

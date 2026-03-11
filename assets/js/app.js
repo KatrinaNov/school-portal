@@ -126,7 +126,12 @@ function setBreadcrumbs(items) {
 
 function renderHome() {
     setBreadcrumbs([{ label: "Главная" }]);
-    var html = "<div class=\"container\"><h1>Выберите класс</h1>";
+    var html = "<div class=\"container\">";
+    html += "<div class=\"home-hero\">";
+    html += "<h1>Привет! Здесь можно учиться и играть</h1>";
+    html += "<p class=\"hero-tagline\">Выбери класс, открой предмет — читай темы и проходи тесты. Удачи!</p>";
+    html += "</div>";
+    html += "<p class=\"home-classes-title\">Выберите класс</p>";
     Object.keys(CONFIG.classes).forEach(function (c) {
         html += "<div class=\"card\" data-class-id=\"" + escapeHtml(c) + "\">" + escapeHtml(CONFIG.classes[c].name) + "</div>";
     });
