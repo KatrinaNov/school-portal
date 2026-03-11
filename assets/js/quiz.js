@@ -1,6 +1,6 @@
 /**
- * Quiz — привязка движка к DOM: загрузка, старт, рендер, обработчики.
- * Состояние сессии (current, correct, wrong, skipped, attempts) в замыкании.
+ * Quiz — привязка движка к DOM: загрузка, старт, рендер.
+ * Ответы собираются без немедленной проверки; навигация Назад/Дальше, на последнем вопросе — Проверить.
  */
 
 (function () {
@@ -26,59 +26,91 @@
         if (btn) btn.addEventListener("click", function () { (typeof Router !== "undefined" && Router.navigate ? Router.navigate(Router.hashForHome()) : (typeof renderHome === "function" && renderHome())); });
     }
 
-    function showWrongAnswerFeedback(container, question) {
-        var el = container ? container.querySelector("#quizFeedback") : null;
-        if (!el) return;
-        var msg = "Ответ неверный.";
-        var hint = (question && (question.hint || question.explanation)) ? String(question.hint || question.explanation) : "";
-        if (hint) msg += " " + hint;
-        el.textContent = msg;
-        el.className = "quiz-feedback quiz-feedback--wrong";
-    }
-
-    function showCorrectAnswerBlock(container, correctText) {
-        var el = container ? container.querySelector("#quizCorrectAnswer") : null;
-        if (!el) return;
-        el.textContent = "Правильный ответ: " + (correctText || "");
-        el.className = "quiz-feedback quiz-feedback--correct";
-        el.hidden = false;
-    }
-
     function buildQuestionHtml(quizTitle, current, total, question, options) {
         options = options || {};
-        var feedbackId = "quizFeedback";
-        var correctId = "quizCorrectAnswer";
+        var selectedIndex = options.selectedChoiceIndex;
+        var inputValue = options.inputValue != null ? options.inputValue : "";
+        var reviewMode = options.reviewMode === true;
+        var questionResult = options.questionResult;
         var answersHtml = "";
         if (question.type === "choice" && Array.isArray(question.a)) {
             question.a.forEach(function (a, i) {
-                answersHtml += "<div class=\"card answer-card\" data-index=\"" + i + "\">" + (typeof escapeHtml === "function" ? escapeHtml(String(a)) : String(a)) + "</div>";
+                var selectedClass = (selectedIndex === i) ? " answer-card--selected" : "";
+                if (reviewMode && selectedIndex === i) {
+                    if (questionResult === true) selectedClass += " correct";
+                    else if (questionResult === false) selectedClass += " wrong";
+                }
+                answersHtml += "<div class=\"card answer-card" + selectedClass + "\" data-index=\"" + i + "\">" + (typeof escapeHtml === "function" ? escapeHtml(String(a)) : String(a)) + "</div>";
             });
         }
         if (question.type === "input") {
-            var inputDisabled = options.inputDisabled ? " disabled" : "";
-            answersHtml += "<input type=\"text\" id=\"userAnswer\" class=\"input-answer\" placeholder=\"Введите ответ\"" + inputDisabled + "><button class=\"primary\" id=\"submitInputAnswer\"" + (options.inputDisabled ? " disabled" : "") + ">Ответить</button>";
+            var safeValue = typeof escapeHtml === "function" ? escapeHtml(inputValue) : inputValue;
+            var inputClass = "input-answer";
+            if (reviewMode && questionResult === true) inputClass += " correct";
+            else if (reviewMode && questionResult === false) inputClass += " wrong";
+            answersHtml += "<input type=\"text\" id=\"userAnswer\" class=\"" + inputClass + "\" placeholder=\"Введите ответ\" value=\"" + safeValue + "\">";
         }
-        var correctBlock = "<div id=\"" + correctId + "\" class=\"quiz-feedback quiz-feedback--correct\" hidden aria-live=\"polite\"></div>";
-        var skipBtn = options.showSkip ? "<button class=\"secondary\" id=\"btnSkipQuestion\">Пропустить вопрос</button>" : "";
-        return "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(quizTitle) : quizTitle) + "</h1><p class=\"quiz-welcome\">Ты справишься! Выбери правильный ответ или введи его в поле.</p><div class=\"progress\">" + (current + 1) + " из " + total + "</div><h2>" + (typeof escapeHtml === "function" ? escapeHtml((question.q != null) ? String(question.q) : "") : (question.q != null ? String(question.q) : "")) + "</h2>" + answersHtml + "<div id=\"" + feedbackId + "\" class=\"quiz-feedback\" aria-live=\"polite\"></div>" + correctBlock + skipBtn + "<button class=\"secondary\" id=\"exitQuizBtn\">Выйти из теста</button></div>";
+        var showBack = current > 0;
+        var isLast = current === total - 1;
+        var navHtml = "<div class=\"quiz-nav\">";
+        if (showBack) navHtml += "<button type=\"button\" class=\"secondary\" id=\"btnQuizBack\">Назад</button>";
+        if (!reviewMode) {
+            if (isLast) navHtml += "<button type=\"button\" id=\"btnQuizFinish\">Проверить</button>";
+            else navHtml += "<button type=\"button\" id=\"btnQuizNext\">Дальше</button>";
+        } else {
+            if (!isLast) navHtml += "<button type=\"button\" id=\"btnQuizNext\">Дальше</button>";
+        }
+        navHtml += "</div>";
+        var welcomeText = reviewMode ? "Можно исправить ответы и нажать «Проверить тест» внизу справа. Зелёный — верно, красный — ошибка." : "Ты справишься! Выбери ответ или введи его — результат увидишь после проверки.";
+        return "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(quizTitle) : quizTitle) + "</h1><p class=\"quiz-welcome\">" + (typeof escapeHtml === "function" ? escapeHtml(welcomeText) : welcomeText) + "</p><div class=\"progress\">" + (current + 1) + " из " + total + "</div><h2>" + (typeof escapeHtml === "function" ? escapeHtml((question.q != null) ? String(question.q) : "") : (question.q != null ? String(question.q) : "")) + "</h2>" + answersHtml + navHtml + "<button type=\"button\" class=\"secondary\" id=\"exitQuizBtn\">Выйти из теста</button></div>";
     }
 
-    function attachChoiceHandlers(container, onChoice) {
-        if (!container || typeof onChoice !== "function") return;
-        container.querySelectorAll(".answer-card").forEach(function (card) {
-            card.addEventListener("click", function () {
-                var idx = card.getAttribute("data-index");
-                if (idx !== null) onChoice(parseInt(idx, 10));
-            });
+    function getUnansweredNumbers(userAnswers, total) {
+        var list = [];
+        for (var i = 0; i < total; i++) {
+            var a = userAnswers[i];
+            if (a == null) list.push(i + 1);
+            else if (a.type === "input" && (a.value == null || String(a.value).trim() === "")) list.push(i + 1);
+        }
+        return list;
+    }
+
+    function showConfirmFinish(container, userAnswers, total, onReturn, onFinish) {
+        var unanswered = getUnansweredNumbers(userAnswers, total);
+        var msg = "Вы уверены, что хотите завершить тест?";
+        if (unanswered.length > 0) {
+            msg += " Вы не дали ответы на следующие вопросы: " + unanswered.join(", ") + ".";
+        }
+        var html = "<div class=\"quiz-confirm-overlay\" id=\"quizConfirmOverlay\"><div class=\"quiz-confirm\"><p>" + (typeof escapeHtml === "function" ? escapeHtml(msg) : msg) + "</p><div class=\"quiz-confirm-buttons\"><button type=\"button\" class=\"secondary\" id=\"btnConfirmReturn\">Вернуться к тесту</button><button type=\"button\" id=\"btnConfirmFinish\">Завершить и проверить</button></div></div></div>";
+        container.insertAdjacentHTML("beforeend", html);
+        var overlay = document.getElementById("quizConfirmOverlay");
+        document.getElementById("btnConfirmReturn").addEventListener("click", function () {
+            if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            if (typeof onReturn === "function") onReturn();
+        });
+        document.getElementById("btnConfirmFinish").addEventListener("click", function () {
+            if (overlay && overlay.parentNode) overlay.parentNode.removeChild(overlay);
+            if (typeof onFinish === "function") onFinish();
         });
     }
 
-    function attachInputHandlers(container, onSubmit, onSkip) {
-        if (!container) return;
-        var submitBtn = container.querySelector("#submitInputAnswer");
-        if (submitBtn && typeof onSubmit === "function") submitBtn.addEventListener("click", function () { onSubmit(); });
-        var skipBtn = container.querySelector("#btnSkipQuestion");
-        if (skipBtn && typeof onSkip === "function") skipBtn.addEventListener("click", function () { onSkip(); });
+    function attachChoiceHandlers(container, userAnswers, current, onSelect) {
+        if (!container || !userAnswers) return;
+        container.querySelectorAll(".answer-card").forEach(function (card) {
+            card.addEventListener("click", function () {
+                var idx = card.getAttribute("data-index");
+                if (idx === null) return;
+                idx = parseInt(idx, 10);
+                userAnswers[current] = { type: "choice", index: idx };
+                container.querySelectorAll(".answer-card").forEach(function (c) {
+                    c.classList.remove("answer-card--selected");
+                    c.classList.remove("correct");
+                    c.classList.remove("wrong");
+                });
+                card.classList.add("answer-card--selected");
+                if (typeof onSelect === "function") onSelect();
+            });
+        });
     }
 
     function attachExitHandler(container, onExit) {
@@ -95,147 +127,150 @@
         }
 
         var engine = Engine;
-        var maxAttempts = (engine.MAX_ATTEMPTS != null) ? engine.MAX_ATTEMPTS : 3;
-        var current = 0;
-        var correct = 0;
-        var wrong = 0;
-        var skipped = 0;
-        var locked = false;
-        var attempts = 0;
         var quizTitle = (data && data.title) || "Тест";
         var container = getContainer();
+        var userAnswers = [];
+        var current = 0;
+        var i;
+        for (i = 0; i < questions.length; i++) userAnswers[i] = null;
 
-        function resetAttempts() {
-            attempts = 0;
+        function saveCurrentInput() {
+            var q = questions[current];
+            if (!q || q.type !== "input") return;
+            var inputEl = container.querySelector("#userAnswer");
+            var val = inputEl ? inputEl.value : "";
+            userAnswers[current] = { type: "input", value: val };
         }
 
-        function nextStep() {
-            resetAttempts();
+        function goNext() {
+            saveCurrentInput();
             current++;
-            if (current < questions.length) {
+            if (current < questions.length) renderQuestion();
+        }
+
+        function goBack() {
+            saveCurrentInput();
+            if (current <= 0) return;
+            current--;
+            renderQuestion();
+        }
+
+        var showFinishButton = false;
+        var reviewMode = false;
+        var questionResults = [];
+
+        function requestFinish() {
+            saveCurrentInput();
+            showConfirmFinish(container, userAnswers, questions.length, function () {
+                showFinishButton = true;
                 renderQuestion();
-            } else {
-                renderResult();
+            }, function () {
+                doFinish();
+            });
+        }
+
+        function doFinish() {
+            var correct = 0;
+            var wrong = 0;
+            var i;
+            questionResults.length = 0;
+            for (i = 0; i < questions.length; i++) {
+                var a = userAnswers[i];
+                var q = questions[i];
+                if (!q) {
+                    questionResults[i] = null;
+                    continue;
+                }
+                var answered = a != null && (a.type !== "input" || (a.value != null && String(a.value).trim() !== ""));
+                if (!answered) {
+                    wrong++;
+                    questionResults[i] = false;
+                    continue;
+                }
+                var ok = false;
+                if (q.type === "choice" && a.type === "choice") ok = engine.validateAnswer && engine.validateAnswer(q, a.index);
+                if (q.type === "input" && a.type === "input") ok = engine.validateAnswer && engine.validateAnswer(q, a.value);
+                questionResults[i] = (ok === true);
+                if (ok) correct++; else wrong++;
             }
+            renderResult(correct, wrong);
+        }
+
+        function renderResult(correct, wrong) {
+            if (!container) return;
+            var totalQ = questions.length;
+            var allCorrect = totalQ > 0 && wrong === 0 && correct === totalQ;
+            var encourage = "Молодец, что прошёл тест! ";
+            if (allCorrect) encourage = "";
+            else if (wrong === 0 && correct > 0) encourage = "Отлично! Все ответы верные. ";
+            else if (correct > 0) encourage = "Хорошая работа! Можно вернуться и подумать над ошибками. ";
+            else encourage = "Не сдавайся — попробуй ещё раз. ";
+            var celebrationBlock = "";
+            if (allCorrect) {
+                celebrationBlock = "<div class=\"quiz-celebration\" role=\"img\" aria-label=\"Поздравляем\"><div class=\"quiz-celebration-emoji\">🎉</div><p class=\"quiz-celebration-title\">Поздравляем!</p><p class=\"quiz-celebration-text\">Все ответы верные! Так держать!</p></div>";
+            }
+            var retryBtnHtml = allCorrect ? "" : "<button type=\"button\" class=\"secondary\" id=\"btnQuizRetry\">Вернуться и исправить</button>";
+            var html = "<div class=\"container\"><h1>Результаты теста</h1>" + celebrationBlock + "<p class=\"quiz-welcome\">" + encourage + "</p><p><strong>Правильных ответов: " + correct + "</strong></p><p><strong>Неправильных ответов: " + wrong + "</strong></p><div class=\"quiz-result-actions\">" + retryBtnHtml + "<button type=\"button\" id=\"btnQuizExit\">Выйти из теста</button></div></div>";
+            container.innerHTML = html;
+            var btnRetry = document.getElementById("btnQuizRetry");
+            if (btnRetry) btnRetry.addEventListener("click", function () {
+                reviewMode = true;
+                current = 0;
+                renderQuestion();
+            });
+            document.getElementById("btnQuizExit").addEventListener("click", function () {
+                if (typeof backAction === "function") backAction();
+                else if (typeof renderHome === "function") renderHome();
+            });
+        }
+
+        function ensureFloatFinishButton() {
+            var floatEl = document.getElementById("quizFloatFinish");
+            if (!floatEl) {
+                floatEl = document.createElement("div");
+                floatEl.id = "quizFloatFinish";
+                floatEl.className = "quiz-float-finish";
+                floatEl.innerHTML = "<button type=\"button\" id=\"btnQuizFloatFinish\">Завершить и проверить тест</button>";
+                container.appendChild(floatEl);
+                floatEl.querySelector("#btnQuizFloatFinish").addEventListener("click", requestFinish);
+            }
+            var btn = floatEl.querySelector("#btnQuizFloatFinish");
+            if (btn) btn.textContent = reviewMode ? "Проверить тест" : "Завершить и проверить тест";
         }
 
         function renderQuestion() {
-            locked = false;
             var q = questions[current];
-            if (!q) {
-                renderResult();
-                return;
-            }
+            if (!q) return;
+            var opts = {};
+            var a = userAnswers[current];
+            if (q.type === "choice" && a && a.type === "choice") opts.selectedChoiceIndex = a.index;
+            if (q.type === "input" && a && a.type === "input") opts.inputValue = a.value;
+            opts.reviewMode = reviewMode;
+            opts.questionResult = reviewMode && questionResults[current] !== undefined ? questionResults[current] : null;
+            if (!container) return;
+            container.innerHTML = buildQuestionHtml(quizTitle, current, questions.length, q, opts);
 
-            var canSkip = engine.canShowSkip && engine.canShowSkip(attempts, maxAttempts);
-            var correctAnswerText = (q.type === "input" && engine.getCorrectAnswerForDisplay) ? engine.getCorrectAnswerForDisplay(q) : "";
-        var showSkip = q.type === "input" && canSkip;
-        var inputDisabled = showSkip;
-
-        if (!container) return;
-        container.innerHTML = buildQuestionHtml(quizTitle, current, questions.length, q, {
-            showSkip: showSkip,
-            inputDisabled: inputDisabled
-        });
+            if (showFinishButton || reviewMode) ensureFloatFinishButton();
 
             attachExitHandler(container, function () {
                 if (typeof backAction === "function") backAction();
                 else if (typeof renderHome === "function") renderHome();
             });
 
+            var btnBack = document.getElementById("btnQuizBack");
+            if (btnBack) btnBack.addEventListener("click", goBack);
+            var btnNext = document.getElementById("btnQuizNext");
+            if (btnNext) btnNext.addEventListener("click", goNext);
+            var btnFinish = document.getElementById("btnQuizFinish");
+            if (btnFinish) btnFinish.addEventListener("click", requestFinish);
+
             if (q.type === "choice") {
-                attachChoiceHandlers(container, function (index) {
-                    if (locked) return;
-                    var isCorrect = engine.validateAnswer && engine.validateAnswer(q, index);
-                    if (isCorrect) {
-                        locked = true;
-                        var cards = container.querySelectorAll(".answer-card");
-                        if (cards[index]) cards[index].classList.add("correct");
-                        correct++;
-                        setTimeout(nextStep, 700);
-                    } else {
-                        wrong++;
-                        var cards = container.querySelectorAll(".answer-card");
-                        if (cards[index]) cards[index].classList.add("wrong");
-                        showWrongAnswerFeedback(container, q);
-                    }
-                });
-            }
-
-            if (q.type === "input") {
-                var inputEl = container.querySelector("#userAnswer");
-                var submitBtn = container.querySelector("#submitInputAnswer");
-
-                if (showSkip) {
-                    showCorrectAnswerBlock(container, correctAnswerText);
-                    if (inputEl) inputEl.disabled = true;
-                    if (submitBtn) submitBtn.disabled = true;
-                    attachInputHandlers(container, null, function () {
-                        if (locked) return;
-                        locked = true;
-                        skipped++;
-                        nextStep();
-                    });
-                    return;
+                if (a && a.type === "choice") {
+                    var cards = container.querySelectorAll(".answer-card");
+                    if (cards[a.index]) cards[a.index].classList.add("answer-card--selected");
                 }
-
-                attachInputHandlers(container, function () {
-                    if (locked) return;
-                    if (!inputEl) return;
-                    var userValue = inputEl.value;
-                    var isCorrect = engine.validateAnswer && engine.validateAnswer(q, userValue);
-
-                    if (isCorrect) {
-                        locked = true;
-                        correct++;
-                        inputEl.classList.remove("wrong");
-                        inputEl.classList.add("correct");
-                        if (submitBtn) submitBtn.disabled = true;
-                        setTimeout(nextStep, 700);
-                    } else {
-                        wrong++;
-                        attempts++;
-                        inputEl.classList.add("wrong");
-                        showWrongAnswerFeedback(container, q);
-                        if (engine.canShowSkip && engine.canShowSkip(attempts, maxAttempts)) {
-                            showCorrectAnswerBlock(container, correctAnswerText);
-                            if (inputEl) inputEl.disabled = true;
-                            if (submitBtn) submitBtn.disabled = true;
-                            var skipBtn = container.querySelector("#btnSkipQuestion");
-                            if (!skipBtn) {
-                                var correctEl = container.querySelector("#quizCorrectAnswer");
-                                var btn = document.createElement("button");
-                                btn.className = "secondary";
-                                btn.id = "btnSkipQuestion";
-                                btn.textContent = "Пропустить вопрос";
-                                btn.addEventListener("click", function () {
-                                    if (locked) return;
-                                    locked = true;
-                                    skipped++;
-                                    nextStep();
-                                });
-                                var parent = correctEl ? correctEl.parentNode : container;
-                                if (parent) {
-                                    if (correctEl && correctEl.nextSibling) parent.insertBefore(btn, correctEl.nextSibling);
-                                    else parent.appendChild(btn);
-                                }
-                            }
-                        }
-                    }
-                }, null);
+                attachChoiceHandlers(container, userAnswers, current);
             }
-        }
-
-        function renderResult() {
-            if (!container) return;
-            var total = questions.length;
-            var pct = total ? Math.round((correct / total) * 100) : 0;
-            container.innerHTML = "<div class=\"container\"><h1>Тест завершён</h1><p class=\"quiz-welcome\">Молодец, что прошёл до конца! Вот твои результаты.</p><p>Правильных: " + correct + "</p><p>Ошибок: " + wrong + "</p><p>Пропущено: " + skipped + "</p><p>Процент: " + pct + "%</p><button id=\"btnQuizResultBack\">Назад</button></div>";
-            var btn = container.querySelector("#btnQuizResultBack");
-            if (btn) btn.addEventListener("click", function () {
-                if (typeof backAction === "function") backAction();
-                else if (typeof renderHome === "function") renderHome();
-            });
         }
 
         renderQuestion();

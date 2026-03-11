@@ -14,7 +14,9 @@ function validateAnswer(question, userAnswer) {
     if (question.type === "choice") {
         var correctIndex = question.c;
         if (correctIndex == null || !Array.isArray(question.a)) return false;
-        return parseInt(userAnswer, 10) === correctIndex;
+        var userIdx = Number(userAnswer);
+        var correctIdx = Number(correctIndex);
+        return !isNaN(userIdx) && !isNaN(correctIdx) && userIdx === correctIdx;
     }
     if (question.type === "input") {
         var answers = question.answers || (question.answer != null ? [question.answer] : []);
