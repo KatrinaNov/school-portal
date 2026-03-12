@@ -328,6 +328,78 @@ input[type="text"]::placeholder,
     background: rgb(255, 217, 0);
 }
 
+/* Изображения в вопросах и вариантах ответа */
+.quiz-q-image {
+    margin: 12px 0;
+}
+.quiz-q-image .quiz-image {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    border: 2px solid rgba(255, 102, 0, 0.3);
+}
+.answer-option-image {
+    display: block;
+    max-width: 80px;
+    max-height: 60px;
+    object-fit: contain;
+    margin-right: 10px;
+    vertical-align: middle;
+}
+.card.answer-card {
+    display: flex;
+    align-items: center;
+}
+/* Несколько правильных ответов (multiple_choice) */
+.answer-card--multi {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
+.answer-card--multi input.multi-choice-cb {
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+.answer-card--multi .multi-choice-label {
+    display: flex;
+    align-items: center;
+}
+/* Сопоставление пар (match) */
+.match-container {
+    margin-top: 12px;
+}
+.match-column {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.match-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+}
+.match-left-text {
+    min-width: 120px;
+}
+.match-select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid rgba(255, 102, 0, 0.5);
+    background: var(--cream);
+    font-family: "Comic Sans MS", "Comic Sans", cursive, sans-serif;
+    min-width: 140px;
+}
+/* Вставка слов (fill_words) */
+.fill-word-wrap {
+    display: inline-block;
+    margin: 0 4px;
+}
+.fill-word-wrap .fill-word-input {
+    min-width: 100px;
+    width: 120px;
+    margin: 0 2px;
+}
 .quiz-nav {
     display: flex;
     flex-wrap: wrap;

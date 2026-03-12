@@ -23,6 +23,38 @@ function validateAnswer(question, userAnswer) {
         var normalized = normalizeAnswer(userAnswer);
         return answers.some(function (a) { return normalizeAnswer(a) === normalized; });
     }
+    /* multiple_choice: c — массив индексов правильных ответов, userAnswer — массив выбранных индексов */
+    if (question.type === "multiple_choice") {
+        var correctSet = question.c;
+        if (!Array.isArray(correctSet) || !Array.isArray(question.a)) return false;
+        var correct = correctSet.slice().sort(function (x, y) { return x - y; }).join(",");
+        var user = (Array.isArray(userAnswer) ? userAnswer : []).slice().sort(function (x, y) { return x - y; }).join(",");
+        return correct === user;
+    }
+    /* match: userAnswer = { rightOrder: number[], selected: number[] }; правильный selected[i] = rightOrder.indexOf(i) */
+    if (question.type === "match") {
+        var pairs = question.pairs;
+        if (!Array.isArray(pairs) || pairs.length === 0) return false;
+        if (!userAnswer || !Array.isArray(userAnswer.rightOrder) || !Array.isArray(userAnswer.selected)) return false;
+        var rightOrder = userAnswer.rightOrder;
+        var selected = userAnswer.selected;
+        if (selected.length !== rightOrder.length) return false;
+        for (var i = 0; i < pairs.length; i++) {
+            if (rightOrder.indexOf(i) !== selected[i]) return false;
+        }
+        return true;
+    }
+    /* fill_words: answers — массив правильных (по порядку пропусков), userAnswer — массив введённых строк */
+    if (question.type === "fill_words") {
+        var expected = question.answers || [];
+        if (!Array.isArray(expected) || expected.length === 0) return false;
+        var given = Array.isArray(userAnswer) ? userAnswer : [];
+        if (given.length !== expected.length) return false;
+        for (var j = 0; j < expected.length; j++) {
+            if (normalizeAnswer(given[j]) !== normalizeAnswer(expected[j])) return false;
+        }
+        return true;
+    }
     return false;
 }
 

@@ -1,5 +1,15 @@
 const CONFIG = {
     classes: {
+        "0": {
+            name: "Общий",
+            subjects: {
+                minecraft: {
+                    name: "Minecraft",
+                    path: "data/0/minecraft/",
+                    showOnlyQuizzes: true
+                }
+            }
+        },
         "2": {
             name: "2 класс",
             subjects: {

@@ -68,10 +68,42 @@ var Api = (function () {
             });
     }
 
+    /**
+     * Загрузка теста по пути (например data/0/minecraft/quiz-minecraft-basics.json).
+     * Сначала проверяется кэш, затем файл. Если файла нет (тест только в content.json),
+     * загружаем content.json и подставляем тест из кэша адаптера.
+     */
     function getQuiz(fullPath) {
-        return getCached(fullPath, function () {
-            return fetchJson(fullPath);
-        });
+        if (cache[fullPath]) return Promise.resolve(cache[fullPath]);
+        return fetch(fullPath)
+            .then(function (res) {
+                if (res.ok) return res.json();
+                throw new Error("Not found");
+            })
+            .then(function (data) {
+                cache[fullPath] = data;
+                return data;
+            })
+            .catch(function () {
+                var dir = fullPath.lastIndexOf("/") !== -1 ? fullPath.substring(0, fullPath.lastIndexOf("/") + 1) : "";
+                if (!dir || typeof ContentAdapter === "undefined" || !ContentAdapter.isContentFormat || !ContentAdapter.normalize) {
+                    return Promise.reject(new Error("Тест не найден"));
+                }
+                return fetch(dir + "content.json")
+                    .then(function (res) {
+                        if (!res.ok) throw new Error("content.json not found");
+                        return res.json();
+                    })
+                    .then(function (content) {
+                        if (!ContentAdapter.isContentFormat(content)) throw new Error("Invalid content");
+                        var result = ContentAdapter.normalize(content, dir);
+                        (result.quizCacheEntries || []).forEach(function (entry) {
+                            cache[entry.key] = entry.value;
+                        });
+                        if (cache[fullPath]) return cache[fullPath];
+                        return Promise.reject(new Error("Тест не найден"));
+                    });
+            });
     }
 
     /** Сброс кэша (для разработки: после изменения JSON обновить данные без перезагрузки вкладки). */

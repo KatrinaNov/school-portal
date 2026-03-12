@@ -184,19 +184,43 @@ function renderSubject(classId, subjectId) {
                 return (p.dates && p.dates.length) || (p.terms && p.terms.length) || (p.people && p.people.length);
             });
             var canBuildTest = hasAnyQuiz || hasAnyData;
-            var paragraphsHTML = "";
+            var quizzesList = [];
+            var seenSlugs = {};
             paragraphs.forEach(function (p) {
-                var hasQuiz = p.quizzes && p.quizzes.length;
-                var hasData = (p.dates && p.dates.length) || (p.terms && p.terms.length) || (p.people && p.people.length);
-                var showCheckbox = hasQuiz || hasData;
-                paragraphsHTML += "<div class=\"paragraph-item\"><div class=\"card\" data-paragraph-path=\"" + escapeHtml(subject.path) + "\" data-paragraph-id=\"" + escapeHtml(String(p.id)) + "\">" + escapeHtml(p.title || "") + "</div>";
-                if (showCheckbox) {
-                    paragraphsHTML += "<label class=\"checkbox-label\"><input type=\"checkbox\" value=\"" + escapeHtml(String(p.id)) + "\" class=\"paragraph-checkbox\">Добавить в свой тест</label>";
-                } else {
-                    paragraphsHTML += "<small class=\"no-quiz\">Тестов пока нет</small>";
+                if (p.quizzes && p.quizzes.length) {
+                    p.quizzes.forEach(function (q) {
+                        var slug = (q && q.file) ? String(q.file).replace(/\.json$/i, "") : "";
+                        if (slug && !seenSlugs[slug]) {
+                            seenSlugs[slug] = true;
+                            quizzesList.push({ slug: slug, title: (q && q.title) || "Тест" });
+                        }
+                    });
                 }
-                paragraphsHTML += "</div>";
             });
+            var showOnlyQuizzes = subject.showOnlyQuizzes === true;
+            var quizzesHTML = "";
+            if (quizzesList.length > 0) {
+                quizzesHTML = "<h2>Тесты</h2><div class=\"subject-quiz-list\">";
+                quizzesList.forEach(function (q) {
+                    quizzesHTML += "<div class=\"card quiz-card\" data-class-id=\"" + escapeHtml(classId) + "\" data-subject-id=\"" + escapeHtml(subjectId) + "\" data-quiz-slug=\"" + escapeHtml(q.slug) + "\">" + escapeHtml(q.title) + "</div>";
+                });
+                quizzesHTML += "</div>";
+            }
+            var paragraphsHTML = "";
+            if (!showOnlyQuizzes) {
+                paragraphs.forEach(function (p) {
+                    var hasQuiz = p.quizzes && p.quizzes.length;
+                    var hasData = (p.dates && p.dates.length) || (p.terms && p.terms.length) || (p.people && p.people.length);
+                    var showCheckbox = hasQuiz || hasData;
+                    paragraphsHTML += "<div class=\"paragraph-item\"><div class=\"card\" data-paragraph-path=\"" + escapeHtml(subject.path) + "\" data-paragraph-id=\"" + escapeHtml(String(p.id)) + "\">" + escapeHtml(p.title || "") + "</div>";
+                    if (showCheckbox) {
+                        paragraphsHTML += "<label class=\"checkbox-label\"><input type=\"checkbox\" value=\"" + escapeHtml(String(p.id)) + "\" class=\"paragraph-checkbox\">Добавить в свой тест</label>";
+                    } else {
+                        paragraphsHTML += "<small class=\"no-quiz\">Тестов пока нет</small>";
+                    }
+                    paragraphsHTML += "</div>";
+                });
+            }
             var typeSelect = "";
             if (canBuildTest && typeof QuizGenerators !== "undefined" && QuizGenerators.SOURCE_PARAGRAPHS) {
                 typeSelect = "<div class=\"form-group form-group--inline\"><label for=\"customTestType\">Тип теста:</label><select id=\"customTestType\">" +
@@ -211,19 +235,31 @@ function renderSubject(classId, subjectId) {
             if (canBuildTest) {
                 limitSelect = "<div class=\"form-group form-group--inline\"><label for=\"customTestLimit\">Вопросов в тесте:</label><input type=\"number\" id=\"customTestLimit\" min=\"1\" max=\"50\" value=\"20\" step=\"1\"></div>";
             }
-            var html = "<div class=\"container\"><h1>" + escapeHtml(subject.name) + "</h1><h2>Темы</h2>" + paragraphsHTML;
-            if (canBuildTest) {
+            var themesBlock = showOnlyQuizzes ? "" : "<h2>Темы</h2>" + paragraphsHTML;
+            var html = "<div class=\"container\"><h1>" + escapeHtml(subject.name) + "</h1>" + quizzesHTML + themesBlock;
+            if (canBuildTest && !showOnlyQuizzes) {
                 html += "<div class=\"custom-test-actions\">" + typeSelect + limitSelect + "<button id=\"btnCustomTest\" data-path=\"" + escapeHtml(subject.path) + "\">Составить тест</button></div>";
             }
             html += "<button id=\"btnBackSubject\">Назад</button></div>";
             app.innerHTML = html;
+            app.querySelectorAll(".quiz-card[data-quiz-slug]").forEach(function (el) {
+                el.addEventListener("click", function () {
+                    var cid = el.getAttribute("data-class-id");
+                    var sid = el.getAttribute("data-subject-id");
+                    var slug = el.getAttribute("data-quiz-slug");
+                    if (cid && sid && slug && typeof Router !== "undefined" && Router.navigate && Router.hashForQuiz) {
+                        Router.navigate(Router.hashForQuiz(cid, sid, slug));
+                    }
+                });
+            });
             app.querySelectorAll(".card[data-paragraph-id]").forEach(function (el) {
                 el.addEventListener("click", function () {
                     Router.navigate(Router.hashForParagraph(classId, subjectId, el.getAttribute("data-paragraph-id")));
                 });
             });
-            if (canBuildTest) {
-                document.getElementById("btnCustomTest").addEventListener("click", function () {
+            var btnCustomTest = document.getElementById("btnCustomTest");
+            if (btnCustomTest) {
+                btnCustomTest.addEventListener("click", function () {
                     var path = this.getAttribute("data-path");
                     var typeEl = document.getElementById("customTestType");
                     var type = typeEl ? typeEl.value : undefined;
@@ -236,11 +272,13 @@ function renderSubject(classId, subjectId) {
                     createCustomTest(path, type, limit);
                 });
             }
-            document.getElementById("btnBackSubject").addEventListener("click", function () { Router.navigate(Router.hashForClass(classId)); });
+            var btnBackSubject = document.getElementById("btnBackSubject");
+            if (btnBackSubject) btnBackSubject.addEventListener("click", function () { Router.navigate(Router.hashForClass(classId)); });
         })
         .catch(function (err) {
             app.innerHTML = "<div class=\"container\"><p>Ошибка загрузки тем.</p><button id=\"btnErrorBack\">Назад</button></div>";
-            document.getElementById("btnErrorBack").addEventListener("click", function () { Router.navigate(Router.hashForHome()); });
+            var btnErrorBack = document.getElementById("btnErrorBack");
+            if (btnErrorBack) btnErrorBack.addEventListener("click", function () { Router.navigate(Router.hashForHome()); });
             console.error(err);
         });
 }
