@@ -73,7 +73,10 @@
             question.a.forEach(function (a, i) {
                 var o = optionTextAndImage(a);
                 var checked = selectedIndices.indexOf(i) !== -1;
-                var checkClass = reviewMode && (questionResult === true || questionResult === false) ? (correctSet.indexOf(i) !== -1 ? " correct" : (checked ? " wrong" : "")) : "";
+                var checkClass = "";
+                if (reviewMode && (questionResult === true || questionResult === false) && checked) {
+                    checkClass = correctSet.indexOf(i) !== -1 ? " correct" : " wrong";
+                }
                 var imgHtml = o.image && basePath && safeImageSrc(basePath, o.image) ? "<img src=\"" + escapeHtml(safeImageSrc(basePath, o.image)) + "\" alt=\"\" class=\"answer-option-image\" loading=\"lazy\">" : "";
                 answersHtml += "<label class=\"card answer-card answer-card--multi" + checkClass + "\"><input type=\"checkbox\" class=\"multi-choice-cb\" data-index=\"" + i + "\"" + (checked ? " checked" : "") + "><span class=\"multi-choice-label\">" + imgHtml + (typeof escapeHtml === "function" ? escapeHtml(o.text) : o.text) + "</span></label>";
             });
