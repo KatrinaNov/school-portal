@@ -21,8 +21,10 @@ function openParagraph(path, id) {
             function imageHtml(basePath, imageValue) {
                 if (!imageValue || typeof imageValue !== "string") return "";
                 var v = imageValue.trim();
-                if (!v || /javascript:|data:\s*text\/html/i.test(v)) return "";
-                var src = (v.indexOf("/") === 0 || v.indexOf("http") === 0) ? v : (basePath + v.replace(/^\.\//, ""));
+                if (!v || /javascript:/i.test(v)) return "";
+                if (/^data:/i.test(v) && !/^data:\s*image\//i.test(v)) return "";
+                if (v.indexOf("..") !== -1) return "";
+                var src = (v.indexOf("/") === 0 || /^https?:/i.test(v)) ? v : (basePath + v.replace(/^\.\//, ""));
                 return "<img src=\"" + escapeHtml(src) + "\" alt=\"\" class=\"content-image\" loading=\"lazy\">";
             }
 

@@ -5,6 +5,15 @@
 var Api = (function () {
     var cache = {};
 
+    /** Проверка пути: только относительные, без выхода вверх и без протокола (защита от SSRF/обхода). */
+    function isPathSafe(path) {
+        if (!path || typeof path !== "string") return false;
+        var p = path.trim();
+        if (p.indexOf("..") !== -1) return false;
+        if (/^\s*(https?:|\/\/)/i.test(p)) return false;
+        return true;
+    }
+
     function fetchJson(url) {
         return fetch(url).then(function (res) {
             if (!res.ok) throw new Error("Ошибка загрузки: " + res.status);
@@ -26,6 +35,7 @@ var Api = (function () {
      */
     function getParagraphs(path) {
         if (!path || typeof path !== "string") return Promise.reject(new Error("Путь не указан"));
+        if (!isPathSafe(path)) return Promise.reject(new Error("Недопустимый путь"));
         path = path.replace(/\/?$/, "/");
         var paragraphsKey = path + "paragraphs.json";
         if (cache[paragraphsKey]) return Promise.resolve(cache[paragraphsKey]);
@@ -74,6 +84,8 @@ var Api = (function () {
      * загружаем content.json и подставляем тест из кэша адаптера.
      */
     function getQuiz(fullPath) {
+        if (!fullPath || typeof fullPath !== "string") return Promise.reject(new Error("Путь не указан"));
+        if (!isPathSafe(fullPath)) return Promise.reject(new Error("Недопустимый путь"));
         if (cache[fullPath]) return Promise.resolve(cache[fullPath]);
         return fetch(fullPath)
             .then(function (res) {

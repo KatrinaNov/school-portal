@@ -34,8 +34,10 @@
     function safeImageSrc(basePath, imageValue) {
         if (!imageValue || typeof imageValue !== "string") return "";
         var v = imageValue.trim();
-        if (!v || /javascript:|data:\s*text\/html/i.test(v)) return "";
-        return (v.indexOf("/") === 0 || v.indexOf("http") === 0) ? v : (basePath ? basePath + v.replace(/^\.\//, "") : v);
+        if (!v || /javascript:/i.test(v)) return "";
+        if (/^data:/i.test(v)) return (/^data:\s*image\//i.test(v)) ? v : "";
+        if (v.indexOf("..") !== -1) return "";
+        return (v.indexOf("/") === 0 || /^https?:/i.test(v)) ? v : (basePath ? basePath + v.replace(/^\.\//, "") : v);
     }
     function buildQuestionHtml(quizTitle, current, total, question, options) {
         options = options || {};
