@@ -62,7 +62,8 @@
         }
         navHtml += "</div>";
         var welcomeText = reviewMode ? "Можно исправить ответы и нажать «Проверить тест» внизу справа. Зелёный — верно, красный — ошибка." : "Ты справишься! Выбери ответ или введи его — результат увидишь после проверки.";
-        return "<div class=\"container\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(quizTitle) : quizTitle) + "</h1><p class=\"quiz-welcome\">" + (typeof escapeHtml === "function" ? escapeHtml(welcomeText) : welcomeText) + "</p><div class=\"progress\">" + (current + 1) + " из " + total + "</div><h2>" + (typeof escapeHtml === "function" ? escapeHtml((question.q != null) ? String(question.q) : "") : (question.q != null ? String(question.q) : "")) + "</h2>" + answersHtml + navHtml + "<button type=\"button\" class=\"secondary\" id=\"exitQuizBtn\">Выйти из теста</button></div>";
+        var headerHtml = "<div class=\"quiz-header\"><h1>" + (typeof escapeHtml === "function" ? escapeHtml(quizTitle) : quizTitle) + "</h1><button type=\"button\" class=\"secondary quiz-exit\" id=\"exitQuizBtn\" aria-label=\"Выйти из теста\">Выйти</button></div>";
+        return "<div class=\"container\">" + headerHtml + "<p class=\"quiz-welcome\">" + (typeof escapeHtml === "function" ? escapeHtml(welcomeText) : welcomeText) + "</p><div class=\"progress\">" + (current + 1) + " из " + total + "</div><h2>" + (typeof escapeHtml === "function" ? escapeHtml((question.q != null) ? String(question.q) : "") : (question.q != null ? String(question.q) : "")) + "</h2>" + answersHtml + navHtml + "</div>";
     }
 
     function getUnansweredNumbers(userAnswers, total) {

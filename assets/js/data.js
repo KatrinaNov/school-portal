@@ -23,6 +23,10 @@ const CONFIG = {
                 english: {
                     name: "Английский язык",
                     path: "data/6/english/"
+                },
+                math: {
+                    name: "Математика",
+                    path: "data/6/math/"
                 }
             }
         }
