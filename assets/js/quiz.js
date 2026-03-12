@@ -85,12 +85,13 @@
         }
         if (question.type === "fill_words" && Array.isArray(question.answers)) {
             var blanks = question.answers.length;
+            var fillWordResults = options.fillWordResults;
             for (var f = 0; f < blanks; f++) {
                 var fv = fillValues[f] != null ? fillValues[f] : "";
                 var safeFv = typeof escapeHtml === "function" ? escapeHtml(fv) : fv;
                 var fillClass = "input-answer fill-word-input";
-                if (reviewMode && questionResult === true) fillClass += " correct";
-                else if (reviewMode && questionResult === false) fillClass += " wrong";
+                if (reviewMode && Array.isArray(fillWordResults) && fillWordResults[f] === true) fillClass += " correct";
+                else if (reviewMode && Array.isArray(fillWordResults) && fillWordResults[f] === false) fillClass += " wrong";
                 answersHtml += "<span class=\"fill-word-wrap\"><input type=\"text\" class=\"" + fillClass + "\" data-fill-index=\"" + f + "\" placeholder=\"…\" value=\"" + safeFv + "\"></span>";
             }
         }
@@ -112,7 +113,14 @@
             answersHtml += "<div class=\"match-column match-left\"><ul>";
             leftItems.forEach(function (left, idx) {
                 var sel = matchAnswer && Array.isArray(matchAnswer.selected) && matchAnswer.selected[idx] !== undefined ? matchAnswer.selected[idx] : "";
-                answersHtml += "<li class=\"match-row\" data-left-index=\"" + idx + "\"><span class=\"match-left-text\">" + (typeof escapeHtml === "function" ? escapeHtml(left) : left) + "</span><select class=\"match-select\" data-left-index=\"" + idx + "\">";
+                var rowClass = "";
+                if (reviewMode && matchAnswer && Array.isArray(matchAnswer.selected) && Array.isArray(rightOrder)) {
+                    var correctRightIdx = rightOrder.indexOf(idx);
+                    var userSelIdx = matchAnswer.selected[idx];
+                    if (typeof userSelIdx === "number" && userSelIdx === correctRightIdx) rowClass = " match-row--correct";
+                    else if (userSelIdx !== undefined && userSelIdx !== "" && String(userSelIdx) !== "") rowClass = " match-row--wrong";
+                }
+                answersHtml += "<li class=\"match-row" + rowClass + "\" data-left-index=\"" + idx + "\"><span class=\"match-left-text\">" + (typeof escapeHtml === "function" ? escapeHtml(left) : left) + "</span><select class=\"match-select\" data-left-index=\"" + idx + "\">";
                 answersHtml += "<option value=\"\">—</option>";
                 rightItems.forEach(function (right, ri) {
                     answersHtml += "<option value=\"" + ri + "\"" + (String(sel) === String(ri) ? " selected" : "") + ">" + (typeof escapeHtml === "function" ? escapeHtml(right) : right) + "</option>";
@@ -357,7 +365,13 @@
             if (q.type === "choice" && a && a.type === "choice") opts.selectedChoiceIndex = a.index;
             if (q.type === "input" && a && a.type === "input") opts.inputValue = a.value;
             if (q.type === "multiple_choice" && a && a.type === "multiple_choice") opts.selectedMultipleChoice = a.indices || [];
-            if (q.type === "fill_words" && a && a.type === "fill_words") opts.fillValues = a.values || [];
+            if (q.type === "fill_words" && a && a.type === "fill_words") {
+                opts.fillValues = a.values || [];
+                if (reviewMode && Array.isArray(q.answers) && Array.isArray(a.values)) {
+                    var normalize = (typeof Engine !== "undefined" && Engine.normalizeAnswer) ? Engine.normalizeAnswer : function (s) { return String(s == null ? "" : s).trim().toLowerCase(); };
+                    opts.fillWordResults = q.answers.map(function (exp, j) { return normalize(a.values[j]) === normalize(exp); });
+                }
+            }
             if (q.type === "match" && a && a.type === "match") {
                 opts.matchAnswer = a;
                 opts.matchRightOrder = Array.isArray(a.rightOrder) ? a.rightOrder : undefined;

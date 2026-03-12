@@ -411,6 +411,14 @@ input[type="text"]::placeholder,
     appearance: none;
     cursor: pointer;
 }
+.match-row.match-row--correct .match-select {
+    border-color: #27ae60;
+    background: #e8f5e9;
+}
+.match-row.match-row--wrong .match-select {
+    border-color: #e74c3c;
+    background: #fde8e8;
+}
 /* Вставка слов (fill_words) */
 .fill-word-wrap {
     display: inline-block;
@@ -725,7 +733,7 @@ input[type="text"]::placeholder,
     .card { padding: 12px 14px; font-size: 0.95rem; }
     .quiz-header h1 { font-size: 1.1rem; }
     .quiz-nav {
-        flex-direction: column;
+        flex-direction: column-reverse;
     }
     .quiz-nav button {
         width: 100%;

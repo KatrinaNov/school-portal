@@ -16,6 +16,11 @@ const CONFIG = {
                 math: {
                     name: "Математика",
                     path: "data/2/math/"
+                },
+                belarusian: {
+                    name: "Белорусский язык",
+                    path: "data/2/belarusian/",
+                    showOnlyQuizzes: true
                 }
             }
         },
