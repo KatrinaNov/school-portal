@@ -31,7 +31,7 @@
         {
           "type": "choice",
           "q": "Какой это моб?",
-          "image": "media/creeper.svg",
+          "image": "media/creeper.png",
           "a": [
             { "text": "Зомби" },
             { "text": "Крипер" },
