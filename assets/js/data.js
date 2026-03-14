@@ -6,7 +6,7 @@ const CONFIG = {
                 minecraft: {
                     name: "Minecraft",
                     path: "data/0/minecraft/",
-                    showOnlyQuizzes: true
+                    // showOnlyQuizzes: true
                 }
             }
         },
