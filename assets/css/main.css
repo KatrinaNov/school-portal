@@ -351,7 +351,7 @@ input[type="text"]::placeholder,
     margin: 12px 0;
 }
 .quiz-q-image .quiz-image {
-    max-width: 100%;
+    max-width: 100px;
     height: auto;
     border-radius: 12px;
     border: 2px solid rgba(255, 102, 0, 0.3);
