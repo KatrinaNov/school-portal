@@ -17,7 +17,8 @@
       "terms": [],
       "people": [],
       "quizzes": [
-        { "id": "quiz-minecraft-basics", "title": "Minecraft 1", "source": "manual" }
+        { "id": "quiz-minecraft-basics", "title": "Minecraft 1", "source": "manual" },
+        { "id": "quiz-minecraft-basics-2", "title": "Minecraft 2", "source": "manual" }
       ]
     }
   ],
@@ -25,6 +26,114 @@
     {
       "id": "quiz-minecraft-basics",
       "title": "Minecraft 1",
+      "source": "manual",
+      "difficulty": "medium",
+      "questions": [
+        {
+          "type": "choice",
+          "q": "Какой это моб?",
+          "image": "media/creeper.png",
+          "a": [
+            { "text": "Зомби" },
+            { "text": "Крипер" },
+            { "text": "Скелет" }
+          ],
+          "c": 1
+        },
+        {
+          "type": "input",
+          "q": "Какой редкий блок даёт алмазы? (название руды)",
+          "answer": "алмазная"
+        },
+        {
+          "type": "multiple_choice",
+          "q": "Какие блоки есть в Minecraft?",
+          "a": ["Камень", "Дерево", "Алмаз", "Бетон"],
+          "c": [0, 1, 2, 3]
+        },
+        {
+          "type": "match",
+          "q": "Соедините моба и предмет, который он даёт:",
+          "pairs": [
+            ["Корова", "Кожа"],
+            ["Курица", "Перо"],
+            ["Овца", "Шерсть"]
+          ]
+        },
+        {
+          "type": "fill_words",
+          "q": "В Minecraft ночью появляются з____ и с____.",
+          "answers": ["зомби", "скелеты"]
+        },
+        {
+          "type": "choice",
+          "q": "Что изображено на картинке?",
+          "image": "media/minecraft-diamond.png",
+          "a": ["Железо", "Алмаз", "Золото", "Уголь"],
+          "c": 1
+        },
+        {
+          "type": "input",
+          "q": "что нужно для крафта доспехов и инструментов?",
+          "answer": "верстак"
+        },
+        {
+          "type": "multiple_choice",
+          "q": "Какие инструменты можно скрафтить из дерева?",
+          "a": ["Кирка", "Топор", "Лопата", "Меч"],
+          "c": [0, 1, 2, 3]
+        },
+        {
+          "type": "match",
+          "q": "Сопоставьте руду и инструмент для добычи:",
+          "pairs": [
+            ["Уголь", "Любая кирка"],
+            ["Железо", "Каменная кирка"],
+            ["Алмаз", "Железная кирка"]
+          ]
+        },
+        {
+          "type": "fill_words",
+          "q": "Алмазную кирку делают из ____ и ____. (ответы запиши во множественном числе)",
+          "answers": ["алмазов", "палок"]
+        },
+        {
+          "type": "choice",
+          "q": "Что это за предмет?",
+          "image": "media/pickaxe.png",
+          "a": ["Топор", "Кирка", "Лопата", "Мотыга"],
+          "c": 1
+        },
+        {
+          "type": "input",
+          "q": "В каком биоме растут кактусы?",
+          "answer": "пустыня"
+        },
+        {
+          "type": "multiple_choice",
+          "q": "Какие биомы есть в Minecraft?",
+          "a": ["Пустыня", "Тайга", "Джунгли", "Космос"],
+          "c": [0, 1, 2]
+        },
+        {
+          "type": "choice",
+          "q": "Что изображено?",
+          "image": "media/crafting-table.png",
+          "a": ["Печка", "Верстак", "Сундук", "Стол"],
+          "c": 1
+        },
+        {
+          "type": "fill_words",
+          "q": "Крипер при убийстве дропает п____",
+          "answers": ["порох"]
+        }
+      ]
+    }
+  ],
+  "quizzies": [
+    {
+      "id": "quiz-minecraft-basics-2",
+      "title": "Minecraft 2",
       "source": "manual",
       "difficulty": "medium",
       "questions": [
