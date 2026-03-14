@@ -67,7 +67,7 @@
         {
           "type": "choice",
           "q": "Что изображено на картинке?",
-          "image": "media/diamond.svg",
+          "image": "media/minecraft-diamond.png",
           "a": ["Железо", "Алмаз", "Золото", "Уголь"],
           "c": 1
         },
@@ -99,7 +99,7 @@
         {
           "type": "choice",
           "q": "Что это за предмет?",
-          "image": "media/pickaxe.svg",
+          "image": "media/pickaxe.png",
           "a": ["Топор", "Кирка", "Лопата", "Мотыга"],
           "c": 1
         },
@@ -117,7 +117,7 @@
         {
           "type": "choice",
           "q": "Что изображено?",
-          "image": "media/crafting-table.svg",
+          "image": "media/crafting-table.png",
           "a": ["Печка", "Верстак", "Сундук", "Стол"],
           "c": 1
         },
