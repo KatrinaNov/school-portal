@@ -37,7 +37,7 @@ npx http-server -p 8080
 
 ---
 
-## Webpack (рекомендуемый режим)
+## Vite (рекомендуемый режим)
 
 Разработка:
 
@@ -62,6 +62,7 @@ npm run build
 - Авторизация/регистрация (Google + email): `src/auth.js`
 - Профиль студента со статистикой: `#/me`
 - Админка: `admin.html` (требует роль admin)
+- Перед миграцией/использованием админки: `npm run unify:data` и `npm run validate:data`
 - Миграция данных из JSON в Firestore: `npm run migrate:firestore`
 
 Подробно: `docs/FIREBASE.md`.

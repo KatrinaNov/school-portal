@@ -1,8 +1,10 @@
 import js from "@eslint/js";
+import tsParser from "@typescript-eslint/parser";
+import tseslint from "@typescript-eslint/eslint-plugin";
 
 export default [
   {
-    ignores: ["dist/**", "node_modules/**", ".firebase/**"],
+    ignores: ["dist/**", "node_modules/**", ".firebase/**", "**/*.html"],
   },
   js.configs.recommended,
   {
@@ -56,7 +58,7 @@ export default [
     },
   },
   {
-    files: ["src/**/*.js"],
+    files: ["src/**/*.js", "vite.config.ts"],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: "module",
@@ -73,6 +75,33 @@ export default [
       "no-empty": "off",
       "no-unused-vars": ["warn", { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
       "no-undef": "warn",
+    },
+  },
+  {
+    files: ["src/**/*.ts", "src/**/*.tsx"],
+    languageOptions: {
+      parser: tsParser,
+      ecmaVersion: 2022,
+      sourceType: "module",
+      globals: {
+        window: "readonly",
+        document: "readonly",
+        location: "readonly",
+        console: "readonly",
+        setTimeout: "readonly",
+        clearTimeout: "readonly",
+      },
+    },
+    plugins: {
+      "@typescript-eslint": tseslint,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
+      "@typescript-eslint/no-explicit-any": "off",
+      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_", caughtErrorsIgnorePattern: "^_" }],
+      "no-unused-vars": "off",
+      "no-undef": "off",
+      "no-empty": "off",
     },
   },
   {

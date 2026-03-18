@@ -1,0 +1,514 @@
+{
+  "version": 1,
+  "meta": {
+    "classId": "6",
+    "subjectId": "english",
+    "title": "english"
+  },
+  "paragraphs": [
+    {
+      "id": "eng-past-simple",
+      "title": "Past Simple — прошедшее простое время",
+      "summary": "Past Simple используется для завершённых действий в прошлом (часто с указанием времени: yesterday, last week, in 2020). Важно: в вопросах и отрицаниях обычно используется did, поэтому основной глагол остаётся в базовой форме (V1).",
+      "image": null,
+      "sections": [
+        {
+          "title": "1) Утверждение (Affirmative)",
+          "content": "Формула: Subject + V2/(-ed).\n\nПравильные глаголы: V + -ed.\n- I played football yesterday. — Я играл в футбол вчера.\n- She visited her grandma last Sunday. — Она навестила бабушку в прошлое воскресенье.\n\nНеправильные глаголы: используется 2-я форма (V2): go → went, do → did, have → had.\n- We went to school. — Мы пошли в школу.\n\nГлагол be: I/he/she/it was, we/you/they were.\n- I was at home. — Я был дома.\n- They were happy. — Они были счастливы."
+        },
+        {
+          "title": "2) Отрицание (Negative)",
+          "content": "Формула: Subject + did not (didn't) + V1.\n\nКлючевой нюанс: после didn't всегда базовая форма (без -ed / без V2).\n- I didn't play. — Я не играл.\n- She didn't go to school. — Она не пошла в школу. (не: didn't went)\n\nС глаголом be did не используется:\n- I wasn't at home. — Я не был дома.\n- They weren't ready. — Они не были готовы."
+        },
+        {
+          "title": "3) Вопрос (Questions) и короткие ответы",
+          "content": "Общий вопрос: Did + subject + V1?\n- Did you play football? — Ты играл в футбол?\nКороткие ответы:\n- Yes, I did. — Да.\n- No, I didn't. — Нет.\n\nСпециальный вопрос: Wh-word + did + subject + V1?\n- Where did you go? — Куда ты ходил?\n\nВопрос к подлежащему (Who/What как подлежащее) — без did:\n- Who broke the window? — Кто разбил окно?\n(не: Who did break ...)"
+        },
+        {
+          "title": "4) Подсказки и произношение -ed",
+          "content": "Маркеры времени: yesterday, last week/month/year, ago, in 2019, on Monday.\n\nПроизношение -ed:\n- /t/ после глухих звуков (worked, asked)\n- /d/ после звонких (played, cleaned)\n- /ɪd/ после t/d (wanted, needed)"
+        }
+      ],
+      "dates": [],
+      "terms": [
+        {
+          "id": "t-eng-past-simple-1",
+          "term": "V1",
+          "definition": "Базовая форма глагола (play, go, do)",
+          "image": null
+        },
+        {
+          "id": "t-eng-past-simple-2",
+          "term": "V2",
+          "definition": "2-я форма глагола (played, went, did)",
+          "image": null
+        },
+        {
+          "id": "t-eng-past-simple-3",
+          "term": "did",
+          "definition": "Вспомогательный глагол Past Simple для вопросов и отрицаний",
+          "image": null
+        },
+        {
+          "id": "t-eng-past-simple-4",
+          "term": "subject question",
+          "definition": "Вопрос к подлежащему (Who came? What happened?)",
+          "image": null
+        }
+      ],
+      "people": [],
+      "quizzes": [
+        {
+          "id": "quiz-past-simple",
+          "title": "Тест: Past Simple",
+          "source": "manual"
+        },
+        {
+          "id": "quiz-past-simple-vs-continuous",
+          "title": "Тест: Past Simple vs Past Continuous",
+          "source": "manual"
+        }
+      ]
+    },
+    {
+      "id": "eng-past-continuous",
+      "title": "Past Continuous — прошедшее длительное время",
+      "summary": "Past Continuous используется для действий, которые происходили в процессе в определённый момент в прошлом, а также для «фонового» действия, которое прерывается другим событием (обычно Past Simple).",
+      "image": null,
+      "sections": [
+        {
+          "title": "1) Утверждение (Affirmative)",
+          "content": "Формула: Subject + was/were + V-ing.\n- I was reading at 8 pm yesterday. — Я читал в 8 вечера вчера.\n- They were playing while I was cooking. — Они играли, пока я готовил.\n\nwas: I/he/she/it\nwere: we/you/they"
+        },
+        {
+          "title": "2) Отрицание (Negative)",
+          "content": "Формула: Subject + was/were + not + V-ing.\n- She wasn't sleeping. — Она не спала.\n- We weren't studying. — Мы не учились."
+        },
+        {
+          "title": "3) Вопрос (Questions)",
+          "content": "Общий вопрос: Was/Were + subject + V-ing?\n- Were you listening? — Ты слушал?\n\nСпециальный вопрос: Wh-word + was/were + subject + V-ing?\n- What were you doing at 7? — Что ты делал в 7 часов?"
+        },
+        {
+          "title": "4) Как образовать -ing форму (нюансы)",
+          "content": "Обычно: play → playing.\n\nПравила:\n- silent e → убираем: make → making, write → writing\n- -ie → меняем на -y: die → dying, lie → lying\n- CVC (run, swim) → удваиваем согласную: run → running, swim → swimming\n- 2 слога, ударение на последний → тоже может удваиваться: prefer → preferring"
+        },
+        {
+          "title": "5) Past Continuous vs Past Simple (when/while)",
+          "content": "Частый шаблон: Past Continuous (фон) + when + Past Simple (событие).\n- I was watching TV when he called. — Я смотрел телевизор, когда он позвонил.\n\nwhile обычно подчёркивает длительность фонового действия:\n- While I was walking, it started to rain. — Пока я шёл, начался дождь.\n\nЕсли два действия шли параллельно, часто оба в Past Continuous:\n- I was doing homework while my brother was playing. — Я делал домашку, пока брат играл."
+        }
+      ],
+      "dates": [],
+      "terms": [
+        {
+          "id": "t-eng-past-continuous-1",
+          "term": "was/were",
+          "definition": "Прошедшие формы be для Past Continuous",
+          "image": null
+        },
+        {
+          "id": "t-eng-past-continuous-2",
+          "term": "V-ing",
+          "definition": "Форма глагола с -ing (reading, playing)",
+          "image": null
+        },
+        {
+          "id": "t-eng-past-continuous-3",
+          "term": "while",
+          "definition": "«пока», подчёркивает длительность/параллельность",
+          "image": null
+        },
+        {
+          "id": "t-eng-past-continuous-4",
+          "term": "when",
+          "definition": "«когда», часто вводит событие, которое прерывает фон",
+          "image": null
+        }
+      ],
+      "people": [],
+      "quizzes": [
+        {
+          "id": "quiz-past-continuous",
+          "title": "Тест: Past Continuous",
+          "source": "manual"
+        },
+        {
+          "id": "quiz-past-simple-vs-continuous",
+          "title": "Тест: Past Simple vs Past Continuous",
+          "source": "manual"
+        }
+      ]
+    }
+  ],
+  "quizzes": [
+    {
+      "id": "quiz-past-simple",
+      "title": "English: Past Simple",
+      "source": "manual",
+      "difficulty": "medium",
+      "questions": [
+        {
+          "type": "choice",
+          "q": "Выберите формулу отрицания Past Simple (для обычных глаголов).",
+          "a": [
+            "Subject + didn't + V1",
+            "Subject + wasn't/weren't + V1",
+            "Subject + don't/doesn't + V1",
+            "Subject + did + V2"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Выберите формулу общего вопроса в Past Simple.",
+          "a": [
+            "Did + subject + V1?",
+            "Do/Does + subject + V1?",
+            "Was/Were + subject + V-ing?",
+            "Have/Has + subject + V3?"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Заполните: She didn't ____ to school yesterday.",
+          "a": [
+            "went",
+            "go",
+            "goes",
+            "going"
+          ],
+          "c": 1
+        },
+        {
+          "type": "input",
+          "q": "Напишите 2-ю форму (V2) глагола go.",
+          "answer": "went"
+        },
+        {
+          "type": "choice",
+          "q": "Вопрос к подлежащему в Past Simple (кто сделал действие) строится без did. Выберите верный вариант.",
+          "a": [
+            "Who did break the window?",
+            "Who broke the window?",
+            "Who break the window?",
+            "Who was break the window?"
+          ],
+          "c": 1
+        },
+        {
+          "type": "choice",
+          "q": "Выберите правильное утверждение: I ____ TV yesterday.",
+          "a": [
+            "watched",
+            "watching",
+            "watch",
+            "watches"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Как читается окончание -ed после звуков /t/ или /d/?",
+          "a": [
+            "/t/",
+            "/d/",
+            "/ɪd/",
+            "/eɪd/"
+          ],
+          "c": 2
+        },
+        {
+          "type": "input",
+          "q": "Напишите сокращение did not.",
+          "answers": [
+            "didn't",
+            "didnt"
+          ],
+          "answer": "didn't"
+        },
+        {
+          "type": "choice",
+          "q": "Глагол be в Past Simple: I ____ at home.",
+          "a": [
+            "was",
+            "were",
+            "did",
+            "been"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Короткий ответ: Did you see him? — Yes, I ____.",
+          "a": [
+            "did",
+            "do",
+            "was",
+            "were"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Когда обычно используем Past Simple?",
+          "a": [
+            "Завершённое действие в прошлом",
+            "Действие, происходящее прямо сейчас",
+            "Действие, которое будет завтра",
+            "Действие, которое началось в прошлом и продолжается до сих пор"
+          ],
+          "c": 0
+        },
+        {
+          "type": "input",
+          "q": "Сделайте отрицание: \"He played\".",
+          "answers": [
+            "he didn't play",
+            "he did not play"
+          ],
+          "answer": "he didn't play"
+        }
+      ]
+    },
+    {
+      "id": "quiz-past-simple-vs-continuous",
+      "title": "English: Past Simple vs Past Continuous",
+      "source": "manual",
+      "difficulty": "medium",
+      "questions": [
+        {
+          "type": "choice",
+          "q": "Выберите время: She ____ (go) to school yesterday.",
+          "a": [
+            "Past Simple",
+            "Past Continuous"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Выберите время: I ____ (watch) TV when he called.",
+          "a": [
+            "Past Simple",
+            "Past Continuous"
+          ],
+          "c": 1
+        },
+        {
+          "type": "choice",
+          "q": "Выберите время: While I was walking, it ____ (start) to rain.",
+          "a": [
+            "Past Simple",
+            "Past Continuous"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Выберите время: At 7 pm yesterday we ____ (do) homework.",
+          "a": [
+            "Past Simple",
+            "Past Continuous"
+          ],
+          "c": 1
+        },
+        {
+          "type": "choice",
+          "q": "Какое предложение верное по смыслу (фон + событие)?",
+          "a": [
+            "When I arrived, she cooked dinner.",
+            "When I arrived, she was cooking dinner.",
+            "When I arrived, she did cooking dinner.",
+            "When I arrived, she was cook dinner."
+          ],
+          "c": 1
+        },
+        {
+          "type": "choice",
+          "q": "Выберите правильную форму: They ____ (play) while I ____ (study).",
+          "a": [
+            "played / studied",
+            "were playing / was studying",
+            "did play / did study",
+            "were played / was studied"
+          ],
+          "c": 1
+        },
+        {
+          "type": "input",
+          "q": "Заполните пропуск: I was watching TV when he ____ (call).",
+          "answers": [
+            "called"
+          ],
+          "answer": "called"
+        },
+        {
+          "type": "input",
+          "q": "Заполните пропуск: Yesterday I ____ (visit) my grandma.",
+          "answers": [
+            "visited"
+          ],
+          "answer": "visited"
+        },
+        {
+          "type": "choice",
+          "q": "Выберите верный вариант: She didn't ____ when I called.",
+          "a": [
+            "slept",
+            "sleeping",
+            "sleep",
+            "was sleep"
+          ],
+          "c": 2
+        },
+        {
+          "type": "choice",
+          "q": "Выберите верный вариант: He ____ sleeping when I called.",
+          "a": [
+            "didn't",
+            "was",
+            "did",
+            "were"
+          ],
+          "c": 1
+        }
+      ]
+    },
+    {
+      "id": "quiz-past-continuous",
+      "title": "English: Past Continuous",
+      "source": "manual",
+      "difficulty": "medium",
+      "questions": [
+        {
+          "type": "choice",
+          "q": "Формула Past Continuous:",
+          "a": [
+            "Subject + was/were + V-ing",
+            "Subject + did + V2",
+            "Subject + have/has + V3",
+            "Subject + do/does + V1"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Отрицание Past Continuous:",
+          "a": [
+            "Subject + was/were + not + V-ing",
+            "Subject + didn't + V1",
+            "Subject + not + V2",
+            "Subject + won't + V1"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Общий вопрос в Past Continuous:",
+          "a": [
+            "Was/Were + subject + V-ing?",
+            "Did + subject + V1?",
+            "Do/Does + subject + V1?",
+            "Have/Has + subject + V3?"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Заполните: I ____ reading at 8 pm yesterday.",
+          "a": [
+            "was",
+            "were",
+            "did",
+            "am"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Заполните: They ____ playing football when it started to rain.",
+          "a": [
+            "was",
+            "were",
+            "did",
+            "are"
+          ],
+          "c": 1
+        },
+        {
+          "type": "choice",
+          "q": "Выберите правильное: She was ____ dinner.",
+          "a": [
+            "cooking",
+            "cooked",
+            "cook",
+            "to cook"
+          ],
+          "c": 0
+        },
+        {
+          "type": "input",
+          "q": "Напишите сокращение was not.",
+          "answers": [
+            "wasn't",
+            "wasnt"
+          ],
+          "answer": "wasn't"
+        },
+        {
+          "type": "choice",
+          "q": "Правило -ing: make → ?",
+          "a": [
+            "making",
+            "makeing",
+            "makking",
+            "madeing"
+          ],
+          "c": 0
+        },
+        {
+          "type": "choice",
+          "q": "Правило -ing: die → ?",
+          "a": [
+            "dieing",
+            "dying",
+            "dyeing",
+            "diying"
+          ],
+          "c": 1
+        },
+        {
+          "type": "choice",
+          "q": "Правило -ing: run → ?",
+          "a": [
+            "runing",
+            "running",
+            "runnen",
+            "runned"
+          ],
+          "c": 1
+        },
+        {
+          "type": "choice",
+          "q": "Выберите верное: I was walking when it ____ to rain.",
+          "a": [
+            "started",
+            "was starting",
+            "start",
+            "starting"
+          ],
+          "c": 0
+        },
+        {
+          "type": "input",
+          "q": "Составьте вопрос из \"You were sleeping\".",
+          "answers": [
+            "were you sleeping",
+            "were you sleeping?"
+          ],
+          "answer": "were you sleeping"
+        }
+      ]
+    }
+  ]
+}

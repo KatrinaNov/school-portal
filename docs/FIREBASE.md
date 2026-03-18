@@ -4,7 +4,7 @@
 
 ## 1) Что уже есть в проекте
 
-- Webpack сборка:
+- Vite сборка:
   - `npm run dev` — локальный dev server
   - `npm run build` — сборка в `dist/`
 - Firebase Web SDK:
@@ -16,7 +16,7 @@
   - после завершения теста у залогиненных сохраняется попытка в `users/{uid}/quizAttempts/*`
   - страница `#/me` показывает результаты
 - Админка:
-  - `dist/admin.html` — админ панель
+  - `dist/admin.html` — админ панель (отдельная страница)
   - CRUD в UI как раньше (localStorage), плюс:
     - «Загрузить из Firebase»
     - «Синхронизировать в Firebase»
@@ -74,10 +74,17 @@ Firestore Database → Create database.
 - `scripts/migrate-to-firestore.mjs`
 
 Он читает:
-- `data/**/content.json` (если есть)
-- иначе `data/**/paragraphs.json` + `quiz-*.json`
+- `data/**/content.json` (целевой формат, если есть)
+- иначе `data/**/paragraphs.json` + `quiz-*.json` (legacy)
 и пишет в коллекции:
 - `classes`, `subjects`, `paragraphs`, `quizzes`
+
+Перед миграцией рекомендуется привести контент к единому формату (и пройти проверки):
+
+```bash
+npm run unify:data
+npm run validate:data
+```
 
 ### Требования
 

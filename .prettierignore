@@ -3,4 +3,5 @@ node_modules/
 .firebase/
 coverage/
 package-lock.json
+assets/js/**
 
