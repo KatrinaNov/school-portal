@@ -19,14 +19,57 @@ module.exports = (env, argv) => {
     },
     devtool: isProd ? false : "source-map",
     devServer: {
-      static: {
-        directory: path.resolve(__dirname, "dist"),
-      },
+      // In dev serve ONLY what the app fetches directly (assets/, data/, favicon),
+      // and avoid watching huge directories (node_modules, dist) to keep startup fast.
+      static: [
+        {
+          directory: path.resolve(__dirname, "assets"),
+          publicPath: "/assets",
+          watch: {
+            ignored: ["**/node_modules/**", "**/dist/**", "**/.git/**"],
+          },
+        },
+        {
+          directory: path.resolve(__dirname, "data"),
+          publicPath: "/data",
+          watch: {
+            ignored: ["**/node_modules/**", "**/dist/**", "**/.git/**"],
+          },
+        },
+        {
+          directory: __dirname,
+          publicPath: "/",
+          watch: {
+            ignored: [
+              "**/node_modules/**",
+              "**/dist/**",
+              "**/.git/**",
+              "**/assets/**",
+              "**/data/**",
+            ],
+          },
+          staticOptions: {
+            // We only need root-level files like favicon.svg
+            index: false,
+          },
+        },
+      ],
       port: 5173,
       open: true,
       compress: true,
       client: {
         overlay: true,
+      },
+      watchFiles: {
+        paths: [
+          "src/**/*",
+          "assets/**/*",
+          "data/**/*",
+          "webpack.config.cjs",
+        ],
+        options: {
+          ignored: ["**/node_modules/**", "**/dist/**", "**/.git/**"],
+        },
       },
     },
     plugins: [
