@@ -3,6 +3,9 @@ import react from "@vitejs/plugin-react";
 import { viteStaticCopy } from "vite-plugin-static-copy";
 
 export default defineConfig({
+  // Use relative asset URLs so `dist/index.html` works when opened locally.
+  // Also helps GitHub Pages because it doesn't assume a root base path.
+  base: "./",
   plugins: [
     react(),
     viteStaticCopy({

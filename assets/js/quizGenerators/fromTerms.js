@@ -26,6 +26,8 @@
             if (!seen[s]) { seen[s] = true; uniq.push(x); }
         });
         shuffleArray(uniq);
+        // If there are no alternative options, avoid infinite loop.
+        if (uniq.length === 0) return Array(count).fill(correct);
         while (uniq.length < count) uniq = uniq.concat(uniq.slice(0, count - uniq.length));
         return uniq.slice(0, count);
     }

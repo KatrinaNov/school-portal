@@ -75,6 +75,42 @@ describe("validateAnswer", function () {
             expect(validateAnswer(q, "  вкл  ")).toBe(true);
         });
     });
+
+    describe("multiple_choice", function () {
+        test("совпадение набора индексов (порядок не важен) — true", function () {
+            var q = { type: "multiple_choice", a: ["A", "B", "C"], c: [2, 0] };
+            expect(validateAnswer(q, [0, 2])).toBe(true);
+        });
+        test("разный набор индексов — false", function () {
+            var q = { type: "multiple_choice", a: ["A", "B", "C"], c: [2, 0] };
+            expect(validateAnswer(q, [0, 1])).toBe(false);
+        });
+    });
+
+    describe("match", function () {
+        test("правильные соответствия — true", function () {
+            var q = { type: "match", pairs: [["L1", "R1"], ["L2", "R2"], ["L3", "R3"]] };
+            // Сценарий, где rightOrder=[0,1,2] и пользователь выбрал [0,1,2]
+            var user = { rightOrder: [0, 1, 2], selected: [0, 1, 2] };
+            expect(validateAnswer(q, user)).toBe(true);
+        });
+        test("неверное соответствие — false", function () {
+            var q = { type: "match", pairs: [["L1", "R1"], ["L2", "R2"], ["L3", "R3"]] };
+            var user = { rightOrder: [0, 1, 2], selected: [1, 0, 2] };
+            expect(validateAnswer(q, user)).toBe(false);
+        });
+    });
+
+    describe("fill_words", function () {
+        test("совпадение с trim/case — true", function () {
+            var q = { type: "fill_words", answers: ["Hello", "world"] };
+            expect(validateAnswer(q, ["  hello  ", "WORLD"])).toBe(true);
+        });
+        test("разная длина введённых слов — false", function () {
+            var q = { type: "fill_words", answers: ["Hello", "world"] };
+            expect(validateAnswer(q, ["Hello"])).toBe(false);
+        });
+    });
 });
 
 describe("getCorrectAnswerForDisplay", function () {

@@ -27,6 +27,9 @@
             if (!seen[s]) { seen[s] = true; uniq.push(x); }
         });
         shuffleArray(uniq);
+        // If there are no alternative options, avoid infinite loop.
+        // In this case we can reuse `correct` to keep generator deterministic and testable.
+        if (uniq.length === 0) return Array(count).fill(correct);
         while (uniq.length < count) uniq = uniq.concat(uniq.slice(0, count - uniq.length));
         return uniq.slice(0, count);
     }
@@ -75,7 +78,8 @@
                 variants.push({ type: "input", q: "Напишите событие для года " + d.year, answer: d.event });
             }
             if (variants.length > 0) {
-                questions.push(variants[Math.floor(Math.random() * variants.length)]);
+                // Add all variants (so caller/tests always get both choice and input when available).
+                questions = questions.concat(variants);
             }
         });
 
