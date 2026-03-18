@@ -35,6 +35,37 @@ npx http-server -p 8080
 
 Переход по разделам — через hash: `#/`, `#/class/6`, `#/class/6/history`, `#/class/6/history/paragraph/17`, `#/class/6/history/quiz/quiz-19`.
 
+---
+
+## Webpack (рекомендуемый режим)
+
+Разработка:
+
+```bash
+npm install
+npm run dev
+```
+
+Сборка (статический деплой):
+
+```bash
+npm run build
+```
+
+Результат — папка `dist/`.
+
+---
+
+## Firebase (Auth + Firestore)
+
+- Конфиг Firebase: `src/firebase.js`
+- Авторизация/регистрация (Google + email): `src/auth.js`
+- Профиль студента со статистикой: `#/me`
+- Админка: `admin.html` (требует роль admin)
+- Миграция данных из JSON в Firestore: `npm run migrate:firestore`
+
+Подробно: `docs/FIREBASE.md`.
+
 
 ## Формат данных
 
@@ -76,6 +107,7 @@ npm run test:coverage
 | [docs/data-schema.md](docs/data-schema.md) | Схема content.json и типы вопросов |
 | [docs/SECURITY.md](docs/SECURITY.md) | Безопасность и рекомендации |
 | [docs/CODE_REVIEW.md](docs/CODE_REVIEW.md) | Ревью кода и оптимизации |
+| [docs/FIREBASE.md](docs/FIREBASE.md) | Настройка Firebase, правила, миграция, GitHub Pages |
 
 ---
 

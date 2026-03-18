@@ -1,4 +1,5 @@
-const CONFIG = {
+// Expose CONFIG as a real global (needed for non-module runtime and bundlers).
+var CONFIG = {
     classes: {
         "0": {
             name: "Общий",
@@ -47,3 +48,7 @@ const CONFIG = {
         }
     }
 };
+
+if (typeof window !== "undefined") {
+    window.CONFIG = CONFIG;
+}

@@ -4,6 +4,9 @@ node_modules/
 # Jest
 coverage/
 
+# Build output
+dist/
+
 # OS
 .DS_Store
 Thumbs.db
@@ -22,7 +25,22 @@ npm-debug.log*
 .env
 .env.local
 
-# Админ-панель — только для локального использования, в репозиторий не публикуем
-admin.html
-assets/css/admin.css
-assets/js/admin/
+# Secrets / credentials (never commit)
+**/*service-account*.json
+**/*firebase*sa*.json
+secrets/
+secret/
+*.pem
+*.p12
+
+# Firebase local files
+.firebase/
+firebase-debug.log
+
+# Cursor / local tooling
+.cursor/
+
+# Private docs (personal notes)
+docs/_private/
+docs/private/
+docs/**/PRIVATE*.md

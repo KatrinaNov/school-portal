@@ -132,6 +132,13 @@
     box-shadow: 0 4px 20px rgba(0,0,0,0.08);
 }
 
+.admin-students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
 /* Forms */
 .admin-form-group {
     margin-bottom: 16px;

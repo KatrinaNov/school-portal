@@ -16,13 +16,17 @@
             <button type="button" class="admin-tab" data-panel="subjects">Предметы</button>
             <button type="button" class="admin-tab" data-panel="paragraphs">Параграфы</button>
             <button type="button" class="admin-tab" data-panel="quizzes">Тесты</button>
+            <button type="button" class="admin-tab" data-panel="students">Студенты</button>
         </nav>
+        <div class="auth-area" id="authArea"></div>
         <div id="admin-header-actions" class="admin-header__actions">
             <button type="button" id="adminExport" class="admin-btn admin-btn--secondary">Экспорт JSON</button>
             <button type="button" id="adminImport" class="admin-btn admin-btn--secondary">Импорт JSON</button>
             <input type="file" id="adminImportFile" accept=".json,application/json" hidden>
             <button type="button" id="adminRevert" class="admin-btn admin-btn--secondary" title="Отменить изменения">Отменить</button>
-            <button type="button" id="adminSave" class="admin-btn admin-btn--primary">Сохранить</button>
+            <button type="button" id="adminSave" class="admin-btn admin-btn--primary">Сохранить (local)</button>
+            <button type="button" id="adminLoadFirebase" class="admin-btn admin-btn--secondary" title="Загрузить контент из Firestore">Загрузить из Firebase</button>
+            <button type="button" id="adminSyncFirebase" class="admin-btn admin-btn--primary" title="Записать контент в Firestore">Синхронизировать в Firebase</button>
         </div>
     </header>
 
@@ -30,16 +34,6 @@
         <div id="admin-notifications" class="admin-notifications" aria-live="polite"></div>
         <div id="admin-panel" class="admin-panel"></div>
     </main>
-
-    <script src="assets/js/utils/safeHtml.js"></script>
-    <script src="assets/js/admin/schema.js"></script>
-    <script src="assets/js/admin/sanitize.js"></script>
-    <script src="assets/js/admin/store.js"></script>
-    <script src="assets/js/admin/ui.js"></script>
-    <script src="assets/js/admin/admin.js"></script>
-    <script src="assets/js/admin/panels/classes.js"></script>
-    <script src="assets/js/admin/panels/subjects.js"></script>
-    <script src="assets/js/admin/panels/paragraphs.js"></script>
-    <script src="assets/js/admin/panels/quizzes.js"></script>
 </body>
 </html>
+

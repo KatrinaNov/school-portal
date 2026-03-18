@@ -316,7 +316,33 @@
                 questionResults[i] = (ok === true);
                 if (ok) correct++; else wrong++;
             }
+            persistAttemptIfPossible(correct, wrong);
             renderResult(correct, wrong);
+        }
+
+        function persistAttemptIfPossible(correct, wrong) {
+            try {
+                // Only for signed-in users; guests keep current behavior.
+                var user = typeof window !== "undefined" ? window.__authUser : null;
+                if (!user || !user.uid) return;
+                if (!window.FirestoreStats || typeof window.FirestoreStats.saveQuizAttempt !== "function") return;
+
+                var quizId = (data && data.id) ? String(data.id) : null;
+                // Fallback: derive from title (not ideal, but keeps stat record usable)
+                if (!quizId) quizId = "quiz-" + String(quizTitle || "unknown").toLowerCase().replace(/\s+/g, "-").replace(/[^\w\-]+/g, "").slice(0, 80);
+
+                var total = questions.length;
+                var score = total > 0 ? Math.round((correct / total) * 100) : 0;
+                window.FirestoreStats.saveQuizAttempt(user.uid, {
+                    quizId: quizId,
+                    quizTitle: String(quizTitle || "Тест"),
+                    score: score,
+                    total: total,
+                    correct: correct,
+                    wrong: wrong,
+                    finishedAt: new Date().toISOString()
+                }).catch(function () { });
+            } catch (e) { }
         }
 
         function renderResult(correct, wrong) {

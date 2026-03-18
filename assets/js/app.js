@@ -11,6 +11,9 @@ var Router = (function () {
         var raw = (h || "").replace(/^#/, "");
         try { raw = decodeURIComponent(raw); } catch (e) {}
         var parts = raw ? raw.split("/").filter(Boolean) : [];
+        if (parts[0] === "me") {
+            return { page: "me" };
+        }
         if (parts[0] !== "class") {
             return { page: "home" };
         }
@@ -26,6 +29,12 @@ var Router = (function () {
     function dispatch(route) {
         if (route.page === "home") {
             renderHome();
+            return;
+        }
+        if (route.page === "me") {
+            if (typeof setBreadcrumbs === "function") setBreadcrumbs([{ label: "Главная", action: "goHome" }, { label: "Профиль" }]);
+            if (typeof renderMe === "function") renderMe();
+            else if (typeof renderHome === "function") renderHome();
             return;
         }
         if (route.page === "class" && route.classId) {
