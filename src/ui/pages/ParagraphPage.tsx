@@ -1,6 +1,7 @@
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { CONFIG } from "../../core/config";
 import { useSubjectContent } from "../../services/content/useSubjectContent";
+import { RichTextViewer } from "./admin/RichTextViewer";
 
 function imgUrl(base: string, imageValue?: string | null) {
   if (!imageValue) return "";
@@ -95,6 +96,37 @@ export function ParagraphPage() {
       ) : null}
 
       {p.summary ? <p style={{ marginTop: 10 }}>{p.summary}</p> : null}
+
+      {Array.isArray(p.sections) && p.sections.length > 0 ? (
+        <>
+          <h2>Текст</h2>
+          <div style={{ display: "grid", gap: 12 }}>
+            {p.sections.map((s: any, idx: number) => (
+              <div key={s?.id ?? idx} className="card" style={{ cursor: "default" }}>
+                {s?.title ? <strong>{String(s.title)}</strong> : null}
+                {s?.image ? (
+                  <div style={{ marginTop: 10 }}>
+                    <img
+                      src={imgUrl(baseMedia, String(s.image))}
+                      alt=""
+                      className="content-image"
+                      loading="lazy"
+                      style={{ maxWidth: 260 }}
+                    />
+                  </div>
+                ) : null}
+                {s?.contentRich ? (
+                  <div style={{ marginTop: 10 }}>
+                    <RichTextViewer doc={s.contentRich} />
+                  </div>
+                ) : s?.content ? (
+                  <div style={{ marginTop: 10, whiteSpace: "pre-wrap" }}>{String(s.content)}</div>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        </>
+      ) : null}
 
       {Array.isArray(p.terms) && p.terms.length > 0 ? (
         <>

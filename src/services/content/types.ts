@@ -30,7 +30,14 @@ export type Paragraph = {
   title: string;
   summary?: string;
   image: string | null;
-  sections: unknown[];
+  sections: Array<{
+    id?: string;
+    title?: string;
+    content?: string;
+    // Rich text document (TipTap JSON). Optional for backward compatibility.
+    contentRich?: unknown;
+    image?: string | null;
+  }>;
   dates: unknown[];
   terms: Term[];
   people: Person[];

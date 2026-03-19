@@ -110,9 +110,9 @@ export function MePage() {
               </div>
               <div>Список студентов и их результаты.</div>
               <div style={{ marginTop: 10 }}>
-                <a className="admin-link" href="/admin.html#panel=students">
+                <Link className="admin-link" to="/admin?tab=stats">
                   Открыть статистику
-                </a>
+                </Link>
               </div>
             </div>
           </div>

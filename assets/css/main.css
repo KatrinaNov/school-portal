@@ -714,6 +714,20 @@ input[type="text"]::placeholder,
     opacity: 0.8;
 }
 
+/* Admin (React) helpers */
+.admin-empty {
+    color: rgba(0, 0, 0, 0.6);
+    text-align: center;
+    padding: 16px 10px;
+    font-weight: 700;
+}
+.admin-students-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
 /* ========== Адаптив и кроссбраузерность ========== */
 
 /* Планшеты и узкие экраны */
