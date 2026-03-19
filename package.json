@@ -10,6 +10,7 @@
     "test": "node node_modules/jest/bin/jest.js --config jest.config.cjs",
     "test:coverage": "node node_modules/jest/bin/jest.js --config jest.config.cjs --coverage",
     "migrate:firestore": "node scripts/migrate-to-firestore.mjs",
+    "export:firestore": "node scripts/export-from-firestore.mjs",
     "lint": "eslint .",
     "format": "prettier . --write",
     "format:check": "prettier . --check",

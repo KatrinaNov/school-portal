@@ -198,11 +198,11 @@ export function QuizPage() {
       </div>
 
       {mode === "result" && result ? (
-        <div style={{ marginTop: 12 }}>
+        <div className="u-mt-12">
           <h2>
             Результат: {result.correct}/{result.total} ({Math.round((result.correct / result.total) * 100)}%)
           </h2>
-          <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+          <div className="u-flex u-gap-10 u-flex-wrap u-mt-12">
             <button type="button" onClick={() => nav(0)}>
               Пройти ещё раз
             </button>
@@ -225,9 +225,9 @@ export function QuizPage() {
             </div>
           ) : null}
 
-          <div style={{ marginTop: 8 }}>
+          <div className="u-mt-8">
             {q && (q as any).type === "choice" && Array.isArray((q as any).a) ? (
-              <div style={{ display: "grid", gap: 12 }}>
+              <div className="u-grid u-gap-12">
                 {(q as any).a.map((opt: unknown, idx: number) => {
                   const selected = currentAnswer?.type === "choice" && currentAnswer.index === idx;
                   return (
@@ -246,7 +246,7 @@ export function QuizPage() {
             ) : null}
 
             {q && (q as any).type === "multiple_choice" && Array.isArray((q as any).a) ? (
-              <div style={{ display: "grid", gap: 12 }}>
+              <div className="u-grid u-gap-12">
                 {(q as any).a.map((opt: unknown, idx: number) => {
                   const checked =
                     currentAnswer?.type === "multiple_choice" && currentAnswer.indices.includes(idx);
@@ -285,7 +285,7 @@ export function QuizPage() {
             ) : null}
 
             {q && (q as any).type === "fill_words" && Array.isArray((q as any).answers) ? (
-              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div className="u-flex u-gap-10 u-flex-wrap">
                 {((q as any).answers as unknown[]).map((_: unknown, i: number) => {
                   const values =
                     currentAnswer?.type === "fill_words" ? currentAnswer.values : Array(((q as any).answers as any[]).length).fill("");
@@ -323,7 +323,7 @@ export function QuizPage() {
             ) : null}
           </div>
 
-          <div className="quiz-nav" style={{ marginTop: 16 }}>
+          <div className="quiz-nav u-mt-16">
             {step > 0 ? (
               <button type="button" className="secondary" onClick={() => setStep((s) => Math.max(0, s - 1))}>
                 Назад

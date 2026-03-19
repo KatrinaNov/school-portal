@@ -98,7 +98,7 @@ export function MePage() {
                 <strong>Редактирование материала</strong>
               </div>
               <div>Открыть админ-панель и редактировать контент.</div>
-              <div style={{ marginTop: 10 }}>
+              <div className="u-mt-10">
                 <Link className="admin-link" to="/admin">
                   Перейти в админку
                 </Link>
@@ -109,7 +109,7 @@ export function MePage() {
                 <strong>Статистика пользователей</strong>
               </div>
               <div>Список студентов и их результаты.</div>
-              <div style={{ marginTop: 10 }}>
+              <div className="u-mt-10">
                 <Link className="admin-link" to="/admin?tab=stats">
                   Открыть статистику
                 </Link>

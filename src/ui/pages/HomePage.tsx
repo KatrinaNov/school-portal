@@ -10,7 +10,7 @@ export function HomePage() {
       </div>
 
       <p className="home-classes-title">Выберите класс</p>
-      <div style={{ display: "grid", gap: 12 }}>
+      <div className="u-grid u-gap-12">
         {Object.entries(CONFIG.classes).map(([classId, cls]) => (
           <Link key={classId} className="card" to={`/class/${encodeURIComponent(classId)}`}>
             {cls.name}

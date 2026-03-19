@@ -13,8 +13,7 @@ export function RichTextEditor({ value, onChange }: Props) {
     content: value || undefined,
     editorProps: {
       attributes: {
-        style:
-          "min-height:140px; border:2px solid rgba(255, 102, 0, 0.2); border-radius:12px; padding:10px; background: rgba(255,255,250,0.65);",
+        class: "rt-editor",
       },
     },
     onUpdate: ({ editor }) => {
@@ -36,7 +35,7 @@ export function RichTextEditor({ value, onChange }: Props) {
     }
   }, [editor, value]);
 
-  if (!editor) return <div className="card" style={{ padding: 12, opacity: 0.85 }}>Загрузка редактора…</div>;
+  if (!editor) return <div className="card u-p-12 u-opacity-85">Загрузка редактора…</div>;
 
   return <EditorContent editor={editor} />;
 }

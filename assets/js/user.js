@@ -32,8 +32,8 @@
             if (isAdmin) {
                 html += "<h2>Администратор</h2>";
                 html += "<div class=\"stats-list\">";
-                html += "<div class=\"card stats-card\"><div><strong>Редактирование материала</strong></div><div>Открыть админ-панель и редактировать классы, предметы, параграфы и тесты.</div><div style=\"margin-top:10px\"><a class=\"admin-link\" href=\"admin.html#panel=classes\">Перейти в админку</a></div></div>";
-                html += "<div class=\"card stats-card\"><div><strong>Статистика пользователей</strong></div><div>Список студентов и их результаты.</div><div style=\"margin-top:10px\"><a class=\"admin-link\" href=\"admin.html#panel=students\">Открыть статистику</a></div></div>";
+                html += "<div class=\"card stats-card\"><div><strong>Редактирование материала</strong></div><div>Открыть админ-панель и редактировать классы, предметы, параграфы и тесты.</div><div class=\"u-mt-10\"><a class=\"admin-link\" href=\"admin.html#panel=classes\">Перейти в админку</a></div></div>";
+                html += "<div class=\"card stats-card\"><div><strong>Статистика пользователей</strong></div><div>Список студентов и их результаты.</div><div class=\"u-mt-10\"><a class=\"admin-link\" href=\"admin.html#panel=students\">Открыть статистику</a></div></div>";
                 html += "</div>";
 
                 // Quick overview of current content from CONFIG (always available).

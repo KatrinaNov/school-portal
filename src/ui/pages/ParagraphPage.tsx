@@ -76,51 +76,49 @@ export function ParagraphPage() {
 
   return (
     <div className="container">
-      <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-        <h1 style={{ margin: 0 }}>{p.title}</h1>
+      <div className="u-flex u-gap-12 u-items-center u-justify-between">
+        <h1 className="u-m-0">{p.title}</h1>
         <button type="button" className="secondary" onClick={backToSubject}>
           Назад
         </button>
       </div>
 
       {p.image ? (
-        <div style={{ marginTop: 12 }}>
+        <div className="u-mt-12">
           <img
             src={imgUrl(baseMedia, p.image)}
             alt=""
-            className="content-image"
             loading="lazy"
-            style={{ maxWidth: 180 }}
+            className="content-image u-maxw-180"
           />
         </div>
       ) : null}
 
-      {p.summary ? <p style={{ marginTop: 10 }}>{p.summary}</p> : null}
+      {p.summary ? <p className="u-mt-10">{p.summary}</p> : null}
 
       {Array.isArray(p.sections) && p.sections.length > 0 ? (
         <>
           <h2>Текст</h2>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="u-grid u-gap-12">
             {p.sections.map((s: any, idx: number) => (
-              <div key={s?.id ?? idx} className="card" style={{ cursor: "default" }}>
+              <div key={s?.id ?? idx} className="card u-cursor-default">
                 {s?.title ? <strong>{String(s.title)}</strong> : null}
                 {s?.image ? (
-                  <div style={{ marginTop: 10 }}>
+                  <div className="u-mt-10">
                     <img
                       src={imgUrl(baseMedia, String(s.image))}
                       alt=""
-                      className="content-image"
                       loading="lazy"
-                      style={{ maxWidth: 260 }}
+                      className="content-image u-maxw-260"
                     />
                   </div>
                 ) : null}
                 {s?.contentRich ? (
-                  <div style={{ marginTop: 10 }}>
+                  <div className="u-mt-10">
                     <RichTextViewer doc={s.contentRich} />
                   </div>
                 ) : s?.content ? (
-                  <div style={{ marginTop: 10, whiteSpace: "pre-wrap" }}>{String(s.content)}</div>
+                  <div className="u-mt-10 u-pre-wrap">{String(s.content)}</div>
                 ) : null}
               </div>
             ))}
@@ -131,11 +129,11 @@ export function ParagraphPage() {
       {Array.isArray(p.terms) && p.terms.length > 0 ? (
         <>
           <h2>Термины</h2>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="u-grid u-gap-12">
             {p.terms.map((t) => (
               <div key={t.id} className="card">
                 <strong>{t.term}</strong>
-                <div style={{ marginTop: 6, opacity: 0.9 }}>{t.definition}</div>
+                <div className="u-mt-6 u-opacity-90">{t.definition}</div>
               </div>
             ))}
           </div>
@@ -145,12 +143,12 @@ export function ParagraphPage() {
       {Array.isArray(p.people) && p.people.length > 0 ? (
         <>
           <h2>Персоны</h2>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="u-grid u-gap-12">
             {p.people.map((person: any) => (
               <div key={person.id ?? person.name} className="card">
                 <strong>{String(person.name ?? "")}</strong>
                 {person.description ? (
-                  <div style={{ marginTop: 6, opacity: 0.9 }}>{String(person.description)}</div>
+                  <div className="u-mt-6 u-opacity-90">{String(person.description)}</div>
                 ) : null}
               </div>
             ))}
@@ -161,7 +159,7 @@ export function ParagraphPage() {
       {quizzes.length > 0 ? (
         <>
           <h2>Тесты</h2>
-          <div style={{ display: "grid", gap: 12 }}>
+          <div className="u-grid u-gap-12">
             {quizzes.map((q: any) => (
               <Link
                 key={q.id}

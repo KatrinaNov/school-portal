@@ -1,5 +1,4 @@
 import { useEffect, useMemo, useState } from "react";
-import { CONFIG } from "../../../core/config";
 import {
   createParagraph,
   deleteParagraph,
@@ -9,29 +8,14 @@ import {
 import type { Paragraph } from "../../../services/content/types";
 import { RichTextEditor } from "./RichTextEditor";
 import { uploadImageToStorage } from "../../../services/storage";
+import { listClasses, listSubjectsByClass } from "../../../services/adminConfig";
+import { listQuizzesBySubject } from "../../../services/adminQuizzes";
 
 type ClassOption = { id: string; name: string };
 type SubjectOption = { id: string; name: string; path: string };
 
 function safeString(v: any) {
   return v == null ? "" : String(v);
-}
-
-function buildOptionsFromConfig(): { classes: ClassOption[]; subjectsByClass: Record<string, SubjectOption[]> } {
-  const classes: ClassOption[] = [];
-  const subjectsByClass: Record<string, SubjectOption[]> = {};
-  const cfg: any = CONFIG && (CONFIG as any).classes ? (CONFIG as any).classes : {};
-  for (const classId of Object.keys(cfg)) {
-    const c = cfg[classId];
-    classes.push({ id: String(classId), name: safeString(c?.name || classId) });
-    const subs = c?.subjects || {};
-    subjectsByClass[String(classId)] = Object.keys(subs).map((sid) => {
-      const s = subs[sid];
-      return { id: String(sid), name: safeString(s?.name || sid), path: safeString(s?.path || "") };
-    });
-  }
-  classes.sort((a, b) => a.id.localeCompare(b.id));
-  return { classes, subjectsByClass };
 }
 
 type ParagraphDraft = {
@@ -101,9 +85,47 @@ function nextLegacyId(paragraphs: any[]): string {
 }
 
 export function AdminContentTab() {
-  const { classes, subjectsByClass } = useMemo(buildOptionsFromConfig, []);
-  const [classId, setClassId] = useState<string>(classes[0]?.id || "");
-  const [subjectId, setSubjectId] = useState<string>(() => subjectsByClass[classes[0]?.id || ""]?.[0]?.id || "");
+  const [cfgState, setCfgState] = useState<
+    | { status: "loading" }
+    | { status: "error"; error: string }
+    | { status: "ready"; classes: ClassOption[]; subjectsByClass: Record<string, SubjectOption[]> }
+  >({ status: "loading" });
+
+  const classes = useMemo(() => (cfgState.status === "ready" ? cfgState.classes : []), [cfgState]);
+  const subjectsByClass = useMemo(
+    () => (cfgState.status === "ready" ? cfgState.subjectsByClass : ({} as Record<string, SubjectOption[]>)),
+    [cfgState]
+  );
+
+  const [classId, setClassId] = useState<string>("");
+  const [subjectId, setSubjectId] = useState<string>("");
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const cls = await listClasses();
+        const subjects: Record<string, SubjectOption[]> = {};
+        for (const c of cls) {
+          const subs = await listSubjectsByClass(c.id);
+          subjects[c.id] = subs.map((s) => ({ id: s.id, name: s.name, path: s.path }));
+        }
+        if (cancelled) return;
+        setCfgState({ status: "ready", classes: cls, subjectsByClass: subjects });
+        const firstClass = cls[0]?.id || "";
+        const firstSub = firstClass ? subjects[firstClass]?.[0]?.id || "" : "";
+        setClassId((prev) => prev || firstClass);
+        setSubjectId((prev) => prev || firstSub);
+      } catch (e) {
+        if (cancelled) return;
+        const msg = e instanceof Error ? e.message : "Не удалось загрузить классы/предметы из Firestore.";
+        setCfgState({ status: "error", error: msg });
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useEffect(() => {
     const subs = subjectsByClass[classId] || [];
@@ -128,24 +150,27 @@ export function AdminContentTab() {
   }, [listState]);
 
   const [draft, setDraft] = useState<ParagraphDraft | null>(null);
+  const [availableQuizzes, setAvailableQuizzes] = useState<Array<{ id: string; title: string }>>([]);
 
   useEffect(() => {
     if (!classId || !subjectId) {
       setListState({ status: "idle" });
       setDraft(null);
+      setAvailableQuizzes([]);
       return;
     }
     let cancelled = false;
     setListState({ status: "loading" });
-    listParagraphsBySubject(classId, subjectId)
-      .then((items) => {
+    Promise.all([listParagraphsBySubject(classId, subjectId), listQuizzesBySubject(classId, subjectId)])
+      .then(([items, quizzes]) => {
         if (cancelled) return;
         const sel = items.length > 0 ? String(items[0].id) : null;
         setListState({ status: "ready", paragraphs: items, selectedId: sel });
+        setAvailableQuizzes(quizzes.map((q) => ({ id: q.id, title: q.title || q.id })));
       })
       .catch((e) => {
         if (cancelled) return;
-        const msg = e instanceof Error ? e.message : "Не удалось загрузить параграфы.";
+        const msg = e instanceof Error ? e.message : "Не удалось загрузить данные.";
         setListState({ status: "error", error: msg });
       });
     return () => {
@@ -164,12 +189,16 @@ export function AdminContentTab() {
   const reload = async () => {
     if (!classId || !subjectId) return;
     setListState({ status: "loading" });
-    const items = await listParagraphsBySubject(classId, subjectId);
+    const [items, quizzes] = await Promise.all([
+      listParagraphsBySubject(classId, subjectId),
+      listQuizzesBySubject(classId, subjectId),
+    ]);
     setListState((prev) => ({
       status: "ready",
       paragraphs: items,
       selectedId: prev.status === "ready" && prev.selectedId ? prev.selectedId : (items[0]?.id ? String(items[0].id) : null),
     }));
+    setAvailableQuizzes(quizzes.map((q) => ({ id: q.id, title: q.title || q.id })));
   };
 
   const onCreate = async () => {
@@ -226,12 +255,20 @@ export function AdminContentTab() {
 
   return (
     <div>
-      <h2 style={{ marginTop: 0 }}>Контент</h2>
+      <h2 className="u-mt-0">Контент</h2>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", alignItems: "center" }}>
+      {cfgState.status === "loading" ? (
+        <div className="u-mt-12">
+          <div className="loader" />
+          <p>Загрузка…</p>
+        </div>
+      ) : null}
+      {cfgState.status === "error" ? <p className="u-mt-12">Ошибка: {cfgState.error}</p> : null}
+
+      <div className="u-flex u-gap-10 u-flex-wrap u-items-center">
         <label>
-          <span style={{ fontSize: 12, opacity: 0.85 }}>Класс</span>
-          <select value={classId} onChange={(e) => setClassId(e.target.value)} style={{ display: "block" }}>
+          <span className="u-fz-12 u-opacity-85">Класс</span>
+          <select value={classId} onChange={(e) => setClassId(e.target.value)} className="u-block">
             {classes.map((c) => (
               <option key={c.id} value={c.id}>
                 {c.name}
@@ -241,8 +278,8 @@ export function AdminContentTab() {
         </label>
 
         <label>
-          <span style={{ fontSize: 12, opacity: 0.85 }}>Предмет</span>
-          <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} style={{ display: "block" }}>
+          <span className="u-fz-12 u-opacity-85">Предмет</span>
+          <select value={subjectId} onChange={(e) => setSubjectId(e.target.value)} className="u-block">
             {subs.map((s) => (
               <option key={s.id} value={s.id}>
                 {s.name}
@@ -251,7 +288,7 @@ export function AdminContentTab() {
           </select>
         </label>
 
-        <div style={{ flex: "1 1 auto" }} />
+        <div className="u-flex-1" />
 
         <button type="button" className="secondary" onClick={() => reload()}>
           Обновить
@@ -263,19 +300,19 @@ export function AdminContentTab() {
       </div>
 
       {listState.status === "loading" ? (
-        <div style={{ marginTop: 12 }}>
+        <div className="u-mt-12">
           <div className="loader" />
           <p>Загрузка…</p>
         </div>
       ) : null}
 
-      {listState.status === "error" ? <p style={{ marginTop: 12 }}>Ошибка: {listState.error}</p> : null}
+      {listState.status === "error" ? <p className="u-mt-12">Ошибка: {listState.error}</p> : null}
 
       {listState.status === "ready" ? (
-        <div style={{ display: "grid", gridTemplateColumns: "minmax(220px, 1fr) 2fr", gap: 12, marginTop: 12 }}>
-          <div className="card" style={{ padding: 12 }}>
+        <div className="u-grid u-grid-cols-minmax-220-2fr u-gap-12 u-mt-12">
+          <div className="card u-p-12">
             <strong>Параграфы</strong>
-            <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+            <div className="u-grid u-gap-8 u-mt-10">
               {listState.paragraphs.map((p: any) => {
                 const id = String(p.id);
                 const active = id === String(listState.selectedId);
@@ -283,42 +320,38 @@ export function AdminContentTab() {
                   <button
                     key={id}
                     type="button"
-                    className="card"
-                    style={{
-                      textAlign: "left",
-                      border: active ? "2px solid rgba(255, 102, 0, 0.6)" : undefined,
-                    }}
+                    className={`card u-text-left ${active ? "u-border-active" : ""}`}
                     onClick={() => setListState((prev) => (prev.status === "ready" ? { ...prev, selectedId: id } : prev))}
                   >
                     <strong>{safeString(p.title || `§${id}`)}</strong>
-                    {p.summary ? <div style={{ marginTop: 6, opacity: 0.85 }}>{safeString(p.summary)}</div> : null}
+                    {p.summary ? <div className="u-mt-6 u-opacity-85">{safeString(p.summary)}</div> : null}
                   </button>
                 );
               })}
             </div>
           </div>
 
-          <div className="card" style={{ padding: 12 }}>
+          <div className="card u-p-12">
             <strong>Редактор</strong>
             {!draft ? (
-              <p style={{ marginTop: 10, opacity: 0.85 }}>Выберите параграф слева.</p>
+              <p className="u-mt-10 u-opacity-85">Выберите параграф слева.</p>
             ) : (
-              <div style={{ marginTop: 10, display: "grid", gap: 10 }}>
-                <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+              <div className="u-mt-10 u-grid u-gap-10">
+                <div className="u-flex u-gap-10 u-flex-wrap">
                   <button type="button" onClick={onSave}>
                     Сохранить
                   </button>
                   <button type="button" className="secondary" onClick={onDelete}>
                     Удалить
                   </button>
-                  <div style={{ flex: "1 1 auto" }} />
-                  <small style={{ opacity: 0.8 }}>
+                  <div className="u-flex-1" />
+                  <small className="u-opacity-80">
                     id генерируется автоматически (legacyId: {draft.legacyId})
                   </small>
                 </div>
 
                 <label>
-                  <span style={{ fontSize: 12, opacity: 0.85 }}>Заголовок</span>
+                  <span className="u-fz-12 u-opacity-85">Заголовок</span>
                   <input
                     type="text"
                     value={draft.title}
@@ -327,7 +360,7 @@ export function AdminContentTab() {
                 </label>
 
                 <label>
-                  <span style={{ fontSize: 12, opacity: 0.85 }}>Кратко</span>
+                  <span className="u-fz-12 u-opacity-85">Кратко</span>
                   <textarea
                     value={draft.summary}
                     onChange={(e) => setDraft({ ...draft, summary: e.target.value })}
@@ -335,17 +368,52 @@ export function AdminContentTab() {
                   />
                 </label>
 
+                <div className="card u-p-12">
+                  <strong>Тесты этого параграфа</strong>
+                  {availableQuizzes.length === 0 ? (
+                    <p className="admin-empty">В этом предмете пока нет тестов. Создайте их во вкладке «Тесты».</p>
+                  ) : (
+                    <div className="u-grid u-gap-8 u-mt-10">
+                      {availableQuizzes.map((q) => {
+                        const selected = Array.isArray(draft.quizzes) && draft.quizzes.some((r: any) => String(r?.id) === q.id);
+                        return (
+                          <label key={q.id} className="u-flex u-gap-10 u-items-center">
+                            <input
+                              type="checkbox"
+                              checked={selected}
+                              onChange={(e) => {
+                                const checked = e.target.checked;
+                                setDraft((prev) => {
+                                  if (!prev) return prev;
+                                  const prevRefs = Array.isArray(prev.quizzes) ? prev.quizzes.slice() : [];
+                                  const nextRefs = checked
+                                    ? prevRefs.concat([{ id: q.id, title: q.title }]).filter((r: any, i: number, a: any[]) => a.findIndex((x) => String(x?.id) === String(r?.id)) === i)
+                                    : prevRefs.filter((r: any) => String(r?.id) !== q.id);
+                                  return { ...prev, quizzes: nextRefs };
+                                });
+                              }}
+                            />
+                            <span>
+                              <strong>{q.title}</strong> <span className="u-opacity-75">({q.id})</span>
+                            </span>
+                          </label>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+
                 <div>
-                  <div style={{ fontSize: 12, opacity: 0.85 }}>Изображение параграфа</div>
-                  <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
+                  <div className="u-fz-12 u-opacity-85">Изображение параграфа</div>
+                  <div className="u-flex u-gap-10 u-items-center u-flex-wrap u-mt-6">
                     <input
                       type="text"
                       placeholder="URL"
                       value={draft.image ?? ""}
                       onChange={(e) => setDraft({ ...draft, image: e.target.value || null })}
-                      style={{ minWidth: 320 }}
+                      className="u-minw-320"
                     />
-                    <label className="secondary" style={{ display: "inline-block", padding: "10px 14px", cursor: "pointer" }}>
+                    <label className="secondary u-secondary-upload">
                       Загрузить…
                       <input
                         type="file"
@@ -360,15 +428,15 @@ export function AdminContentTab() {
                     </label>
                   </div>
                   {draft.image ? (
-                    <div style={{ marginTop: 10 }}>
-                      <img src={draft.image} alt="" style={{ maxWidth: 220, borderRadius: 10 }} />
+                    <div className="u-mt-10">
+                      <img src={draft.image} alt="" className="u-maxw-220 u-radius-10" />
                     </div>
                   ) : null}
                 </div>
 
-                <div style={{ marginTop: 6 }}>
-                  <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between" }}>
-                    <h3 style={{ margin: 0 }}>Разделы</h3>
+                <div className="u-mt-6">
+                  <div className="u-flex u-gap-10 u-items-center u-justify-between">
+                    <h3 className="u-m-0">Разделы</h3>
                     <button
                       type="button"
                       className="secondary"
@@ -385,10 +453,10 @@ export function AdminContentTab() {
                     </button>
                   </div>
 
-                  <div style={{ display: "grid", gap: 12, marginTop: 10 }}>
+                  <div className="u-grid u-gap-12 u-mt-10">
                     {draft.sections.map((s) => (
-                      <div key={s.id} className="card" style={{ padding: 12 }}>
-                        <div style={{ display: "flex", gap: 10, alignItems: "center", justifyContent: "space-between" }}>
+                      <div key={s.id} className="card u-p-12">
+                        <div className="u-flex u-gap-10 u-items-center u-justify-between">
                           <strong>{s.title || "Раздел"}</strong>
                           <button
                             type="button"
@@ -404,8 +472,8 @@ export function AdminContentTab() {
                           </button>
                         </div>
 
-                        <label style={{ marginTop: 10, display: "block" }}>
-                          <span style={{ fontSize: 12, opacity: 0.85 }}>Заголовок</span>
+                        <label className="u-mt-10 u-block">
+                          <span className="u-fz-12 u-opacity-85">Заголовок</span>
                           <input
                             type="text"
                             value={s.title}
@@ -418,8 +486,8 @@ export function AdminContentTab() {
                           />
                         </label>
 
-                        <div style={{ marginTop: 10 }}>
-                          <div style={{ fontSize: 12, opacity: 0.85 }}>Текст (визуальный редактор)</div>
+                        <div className="u-mt-10">
+                          <div className="u-fz-12 u-opacity-85">Текст (визуальный редактор)</div>
                           <RichTextEditor
                             value={s.contentRich ?? null}
                             onChange={(doc, plain) =>
@@ -433,9 +501,9 @@ export function AdminContentTab() {
                           />
                         </div>
 
-                        <div style={{ marginTop: 10 }}>
-                          <div style={{ fontSize: 12, opacity: 0.85 }}>Изображение раздела</div>
-                          <div style={{ display: "flex", gap: 10, alignItems: "center", flexWrap: "wrap", marginTop: 6 }}>
+                        <div className="u-mt-10">
+                          <div className="u-fz-12 u-opacity-85">Изображение раздела</div>
+                          <div className="u-flex u-gap-10 u-items-center u-flex-wrap u-mt-6">
                             <input
                               type="text"
                               placeholder="URL"
@@ -446,9 +514,9 @@ export function AdminContentTab() {
                                   sections: draft.sections.map((x) => (x.id === s.id ? { ...x, image: e.target.value || null } : x)),
                                 })
                               }
-                              style={{ minWidth: 320 }}
+                              className="u-minw-320"
                             />
-                            <label className="secondary" style={{ display: "inline-block", padding: "10px 14px", cursor: "pointer" }}>
+                            <label className="secondary u-secondary-upload">
                               Загрузить…
                               <input
                                 type="file"
@@ -463,8 +531,8 @@ export function AdminContentTab() {
                             </label>
                           </div>
                           {s.image ? (
-                            <div style={{ marginTop: 10 }}>
-                              <img src={s.image} alt="" style={{ maxWidth: 220, borderRadius: 10 }} />
+                            <div className="u-mt-10">
+                              <img src={s.image} alt="" className="u-maxw-220 u-radius-10" />
                             </div>
                           ) : null}
                         </div>

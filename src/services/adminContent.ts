@@ -5,13 +5,23 @@ import { db } from "../firebase";
 // paragraphs/{classId}__{subjectId}__{legacyId}
 
 export async function listParagraphsBySubject(classId: string, subjectId: string) {
-  const q = query(
-    collection(db, "paragraphs"),
-    where("classId", "==", String(classId)),
-    where("subjectId", "==", String(subjectId))
-  );
-  const snap = await getDocs(q);
-  const items = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+  const cid = String(classId);
+  const sid = String(subjectId);
+  let items: any[] = [];
+  try {
+    const q = query(collection(db, "paragraphs"), where("classId", "==", cid), where("subjectId", "==", sid));
+    const snap = await getDocs(q);
+    items = snap.docs.map((d) => ({ id: d.id, ...(d.data() as any) }));
+  } catch (e: any) {
+    // If composite index is missing (failed-precondition), fallback to a single-field query and filter client-side.
+    const code = e?.code ? String(e.code) : "";
+    if (code && code !== "failed-precondition") throw e;
+    const q = query(collection(db, "paragraphs"), where("classId", "==", cid));
+    const snap = await getDocs(q);
+    items = snap.docs
+      .map((d) => ({ id: d.id, ...(d.data() as any) }))
+      .filter((p) => String(p?.subjectId || "") === sid);
+  }
   items.sort((a: any, b: any) => {
     const na = Number(a.legacyId ?? a.id);
     const nb = Number(b.legacyId ?? b.id);

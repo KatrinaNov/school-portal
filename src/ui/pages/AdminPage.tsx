@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { isAdminUid } from "../../services/roles";
 import { AdminContentTab } from "./admin/AdminContentTab";
+import { AdminQuizzesTab } from "./admin/AdminQuizzesTab";
+import { AdminConfigTab } from "./admin/AdminConfigTab";
 import { AdminStatsTab } from "./admin/AdminStatsTab";
+import { AdminSyncBar } from "./admin/AdminSyncBar";
 
 type AdminState =
   | { status: "auth_loading" }
@@ -11,10 +14,13 @@ type AdminState =
   | { status: "ready" }
   | { status: "error"; error: string };
 
-type AdminTab = "content" | "stats";
+type AdminTab = "content" | "quizzes" | "classes" | "stats";
 
 function normalizeTab(v: string | null): AdminTab {
-  return v === "stats" ? "stats" : "content";
+  if (v === "stats") return "stats";
+  if (v === "quizzes") return "quizzes";
+  if (v === "classes") return "classes";
+  return "content";
 }
 
 export function AdminPage() {
@@ -22,18 +28,35 @@ export function AdminPage() {
   const [params, setParams] = useSearchParams();
   const tab = normalizeTab(params.get("tab"));
 
-  const user = (window as any).__authUser as any;
-  const uid = useMemo(() => (user?.uid ? String(user.uid) : ""), [user?.uid]);
+  const [authUser, setAuthUser] = useState<any>(() => (window as any).__authUser);
+  const uid = useMemo(() => (authUser?.uid ? String(authUser.uid) : ""), [authUser?.uid]);
   const [state, setState] = useState<AdminState>(() => {
-    if (typeof user === "undefined") return { status: "auth_loading" };
-    if (!user) return { status: "guest" };
+    const u = (window as any).__authUser;
+    if (typeof u === "undefined") return { status: "auth_loading" };
+    if (!u) return { status: "guest" };
     return { status: "auth_loading" };
   });
 
   useEffect(() => {
+    // `auth.js` sets window.__authUser asynchronously. We need to react to it.
+    // We keep a tiny poll here to avoid wiring a full auth context.
+    let cancelled = false;
+    const tick = () => {
+      const u = (window as any).__authUser;
+      if (!cancelled) setAuthUser(u);
+    };
+    tick();
+    const t = window.setInterval(tick, 200);
+    return () => {
+      cancelled = true;
+      window.clearInterval(t);
+    };
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
-      const u = (window as any).__authUser;
+      const u = authUser;
       if (typeof u === "undefined") {
         setState({ status: "auth_loading" });
         return;
@@ -54,7 +77,7 @@ export function AdminPage() {
     return () => {
       cancelled = true;
     };
-  }, [uid]);
+  }, [uid, authUser]);
 
   const setTab = (next: AdminTab) => setParams({ tab: next });
 
@@ -105,24 +128,34 @@ export function AdminPage() {
 
   return (
     <div className="container">
-      <div style={{ display: "flex", gap: 12, alignItems: "center", justifyContent: "space-between" }}>
-        <h1 style={{ margin: 0 }}>Админка</h1>
+      <div className="u-flex u-gap-12 u-items-center u-justify-between">
+        <h1 className="u-m-0">Админка</h1>
         <button type="button" className="secondary" onClick={() => nav("/")}>
           На главную
         </button>
       </div>
 
-      <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 12 }}>
+      <AdminSyncBar />
+
+      <div className="u-flex u-gap-10 u-flex-wrap u-mt-12">
         <button type="button" className={tab === "content" ? "" : "secondary"} onClick={() => setTab("content")}>
           Контент
+        </button>
+        <button type="button" className={tab === "quizzes" ? "" : "secondary"} onClick={() => setTab("quizzes")}>
+          Тесты
+        </button>
+        <button type="button" className={tab === "classes" ? "" : "secondary"} onClick={() => setTab("classes")}>
+          Классы
         </button>
         <button type="button" className={tab === "stats" ? "" : "secondary"} onClick={() => setTab("stats")}>
           Статистика
         </button>
       </div>
 
-      <div style={{ marginTop: 12 }}>
+      <div className="u-mt-12">
         {tab === "content" ? <AdminContentTab /> : null}
+        {tab === "quizzes" ? <AdminQuizzesTab /> : null}
+        {tab === "classes" ? <AdminConfigTab /> : null}
         {tab === "stats" ? <AdminStatsTab /> : null}
       </div>
     </div>

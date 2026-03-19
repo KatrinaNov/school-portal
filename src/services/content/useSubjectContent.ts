@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import type { SubjectContent } from "./types";
 import { fetchSubjectContentJson } from "./jsonSource";
+import { fetchSubjectContentFirestore } from "./firestoreSource";
 
 export type SubjectContentState =
   | { status: "idle" }
@@ -20,7 +21,18 @@ export function useSubjectContent(classId?: string, subjectId?: string): Subject
 
     let cancelled = false;
     setState({ status: "loading" });
-    fetchSubjectContentJson(deps.classId, deps.subjectId)
+    const run = async () => {
+      try {
+        // Prefer Firestore when available (public read), fallback to JSON for offline/guest resiliency.
+        const fromFs = await fetchSubjectContentFirestore(deps.classId!, deps.subjectId!);
+        if (fromFs.paragraphs.length > 0 || fromFs.quizzes.length > 0) return fromFs;
+      } catch {
+        // ignore and fallback
+      }
+      return await fetchSubjectContentJson(deps.classId!, deps.subjectId!);
+    };
+
+    run()
       .then((content) => {
         if (cancelled) return;
         setState({ status: "ready", content });

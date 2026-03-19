@@ -19,7 +19,7 @@ export function ClassPage() {
   return (
     <div className="container">
       <h1>{cls.name}</h1>
-      <div style={{ display: "grid", gap: 12 }}>
+      <div className="u-grid u-gap-12">
         {Object.entries(cls.subjects).map(([subjectId, subj]) => (
           <Link
             key={subjectId}
@@ -30,7 +30,7 @@ export function ClassPage() {
           </Link>
         ))}
       </div>
-      <div style={{ marginTop: 12 }}>
+      <div className="u-mt-12">
         <Link to="/" className="secondary">
           Назад
         </Link>

@@ -94,7 +94,7 @@ export function AdminStatsTab() {
 
   return (
     <div>
-      <h2 style={{ marginTop: 0 }}>Студенты</h2>
+      <h2 className="u-mt-0">Студенты</h2>
 
       {studentsState.status === "loading" ? (
         <>
@@ -122,11 +122,7 @@ export function AdminStatsTab() {
                     <button
                       key={s.uid}
                       type="button"
-                      className="card"
-                      style={{
-                        textAlign: "left",
-                        border: active ? "2px solid rgba(255, 102, 0, 0.6)" : undefined,
-                      }}
+                      className={`card u-text-left ${active ? "u-border-active" : ""}`}
                       onClick={() =>
                         setStudentsState((prev) =>
                           prev.status === "ready" ? { ...prev, selectedUid: s.uid } : prev
@@ -134,15 +130,15 @@ export function AdminStatsTab() {
                       }
                     >
                       <strong>{label}</strong>
-                      <div style={{ fontSize: 12, opacity: 0.8 }}>{s.uid}</div>
+                      <div className="u-fz-12 u-opacity-80">{s.uid}</div>
                     </button>
                   );
                 })}
               </div>
 
-              <div style={{ marginTop: 14 }}>
-                <h3 style={{ marginTop: 0 }}>Результаты</h3>
-                {selectedUid ? <p style={{ marginTop: 0, opacity: 0.85 }}>{selectedLabel}</p> : null}
+              <div className="u-mt-14">
+                <h3 className="u-m-0">Результаты</h3>
+                {selectedUid ? <p className="u-m-0 u-opacity-85">{selectedLabel}</p> : null}
 
                 {attemptsState.status === "loading" ? (
                   <>
